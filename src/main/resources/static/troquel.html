@@ -11,8 +11,6 @@
 <div class="container">
     <div class="header">
         <img src="logoEcuamag.png" alt="Logo Ecuamag" class="logo">
-
-
         <h1>Lista de Troqueles</h1>
     </div>
 
@@ -36,14 +34,24 @@
         <option value="FUNDA">Funda</option>
     </select>
 
+    <!-- Filtro por Orientación (solo aparece cuando se selecciona "Sobre") -->
+    <div id="orientacionDiv" style="display: none;">
+        <label for="orientacion">Selecciona la orientación:</label>
+        <select id="orientacion">
+            <option value="">Todos</option>
+            <option value="HORIZONTAL">Horizontal</option>
+            <option value="VERTICAL">Vertical</option>
+        </select>
+    </div>
+
     <!-- Tabla para mostrar los troqueles -->
     <table id="troqueles-table">
         <thead>
         <tr>
             <th>Número de Troquel</th>
-            <th>Tamaño de Corte </th>
-            <th>Tamaño Cerrado </th>
-            <th>Tipo de troquel </th>
+            <th>Tamaño de Corte</th>
+            <th>Tamaño Cerrado</th>
+            <th>Tipo de troquel</th>
             <th>Descripción</th>
         </tr>
         </thead>
@@ -58,13 +66,18 @@
     async function cargarTroqueles() {
         const inventario = document.getElementById('inventario').value;
         const tipoTroquel = document.getElementById('tipoTroquel').value;
+        const orientacion = document.getElementById('orientacion') ? document.getElementById('orientacion').value : '';
 
         try {
-            // Realizar la llamada a la API con los parámetros de inventario y tipo
+            // Realizar la llamada a la API con los parámetros de inventario, tipo y orientación
             let url = `http://localhost:8081/api/troqueles/filtrar?inventario=${inventario}`;
             if (tipoTroquel) {
                 url += `&tipo=${tipoTroquel}`;
             }
+            if (orientacion) {
+                url += `&orientacion=${orientacion}`;
+            }
+
             const response = await fetch(url);
             const troqueles = await response.json();
 
@@ -88,16 +101,33 @@
         }
     }
 
+    // Función para mostrar/ocultar el filtro de orientación según el tipo de troquel seleccionado
+    function mostrarFiltroOrientacion() {
+        const tipoTroquel = document.getElementById('tipoTroquel').value;
+        const orientacionDiv = document.getElementById('orientacionDiv');
+
+        // Si el tipo de troquel es "Sobre", mostramos el filtro de orientación
+        if (tipoTroquel === 'SOBRE') {
+            orientacionDiv.style.display = 'block';
+        } else {
+            orientacionDiv.style.display = 'none';
+        }
+
+        // Recargar los troqueles cuando cambien los filtros
+        cargarTroqueles();
+    }
+
     // Cargar los troqueles por defecto (inventario grande) cuando la página se cargue
     document.addEventListener('DOMContentLoaded', () => {
         cargarTroqueles();
     });
 
-    // Agregar un listener para que se recargue la tabla cuando cambie el inventario o tipo de troquel
+    // Agregar un listener para que se recargue la tabla cuando cambie el inventario, tipo de troquel o orientación
     document.getElementById('inventario').addEventListener('change', () => {
         cargarTroqueles();
     });
-    document.getElementById('tipoTroquel').addEventListener('change', () => {
+    document.getElementById('tipoTroquel').addEventListener('change', mostrarFiltroOrientacion);
+    document.getElementById('orientacion').addEventListener('change', () => {
         cargarTroqueles();
     });
 </script>
