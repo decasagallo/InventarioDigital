@@ -1,11 +1,11 @@
-# Usa una imagen oficial de Java
 FROM eclipse-temurin:21-jdk
 
-# Configura el directorio de trabajo
 WORKDIR /app
 
-# Copia el contenido del repositorio
 COPY . .
+
+# Da permisos de ejecución a mvnw
+RUN chmod +x mvnw
 
 # Construye la aplicación
 RUN ./mvnw clean package -DskipTests
@@ -13,6 +13,5 @@ RUN ./mvnw clean package -DskipTests
 # Expone el puerto de la aplicación (ajusta si usas otro)
 EXPOSE 8080
 
-# Comando para ejecutar la aplicación
+# Ejecuta la aplicación
 CMD ["java", "-jar", "target/InventarioDigital-0.0.1-SNAPSHOT.jar"]
-
