@@ -70,7 +70,7 @@
 
         try {
             // Realizar la llamada a la API con los parámetros de inventario, tipo y orientación
-            let url = `http://localhost:8081/api/troqueles/filtrar?inventario=${inventario}`;
+            let url = `https://inventariodigital.onrender.com/api/troqueles/filtrar?inventario=${inventario}`;
             if (tipoTroquel) {
                 url += `&tipo=${tipoTroquel}`;
             }
