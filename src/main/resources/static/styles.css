@@ -83,7 +83,7 @@ h1 {
 /* Media Queries para hacer la tabla responsiva en dispositivos móviles */
 @media (max-width: 768px) {
     /* Asegurarse de que la tabla se pueda desplazar horizontalmente */
-    .container {
+    .table-container {
         overflow-x: auto; /* Añade desplazamiento horizontal si es necesario */
     }
 
