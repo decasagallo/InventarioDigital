@@ -1,0 +1,80 @@
+/* Estilo para el cuerpo y la estructura general */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    width: 80%;
+    margin: 20px auto;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    text-align: center;
+    color: #333;
+}
+
+/* Estilo para el filtro */
+label {
+    font-size: 16px;
+    margin-right: 10px;
+}
+
+select {
+    font-size: 16px;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+/* Estilo para la tabla */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th, td {
+    padding: 12px;
+    text-align: center;
+    border: 1px solid #ddd;
+}
+
+th {
+    background-color: #f2f2f2;
+}
+
+td {
+    background-color: #fafafa;
+}
+
+td.null {
+    color: #888;
+    font-style: italic;
+}
+
+/* Estilo para la cabecera (logo + título) */
+.header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 30px; /* Espacio entre la cabecera y la tabla */
+}
+
+.logo {
+    width: 250px; /* Ajusta el tamaño según necesites */
+    height: auto;
+    margin-right: 20px;
+}
+
+h1 {
+    text-align: center;
+    color: #333;
+    flex-grow: 1; /* Para que el título se alinee a la izquierda si lo deseas */
+}

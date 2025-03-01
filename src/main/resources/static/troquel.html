@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventario</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <img src="logoEcuamag.PNG" alt="Logo Ecuamag" class="logo">
+        <h1>Lista de Troqueles</h1>
+    </div>
+
+    <!-- Filtro por Inventario -->
+    <label for="inventario">Selecciona una lista:</label>
+    <select id="inventario">
+        <option value="GRANDE">Troqueles Grandes</option>
+        <option value="PEQUENO">Troqueles Pequeños</option>
+    </select>
+
+    <!-- Filtro por Tipo de Troquel -->
+    <label for="tipoTroquel">Selecciona un tipo de troquel:</label>
+    <select id="tipoTroquel">
+        <option value="">Todos</option>
+        <option value="SOBRE">Sobre</option>
+        <option value="BOLSA">Bolsa</option>
+        <option value="CAJA">Caja</option>
+        <option value="CARPETA">Carpeta</option>
+        <option value="PARTE">Parte</option>
+        <option value="FORMA">Forma</option>
+        <option value="FUNDA">Funda</option>
+    </select>
+
+    <!-- Tabla para mostrar los troqueles -->
+    <table id="troqueles-table">
+        <thead>
+        <tr>
+            <th>Número de Troquel</th>
+            <th>Tamaño de Corte </th>
+            <th>Tamaño Cerrado </th>
+            <th>Tipo de troquel </th>
+            <th>Descripción</th>
+        </tr>
+        </thead>
+        <tbody>
+        <!-- Los datos se llenarán con JavaScript -->
+        </tbody>
+    </table>
+</div>
+
+<script>
+    // Función para cargar los troqueles desde la API
+    async function cargarTroqueles() {
+        const inventario = document.getElementById('inventario').value;
+        const tipoTroquel = document.getElementById('tipoTroquel').value;
+
+        try {
+            // Realizar la llamada a la API con los parámetros de inventario y tipo
+            let url = `http://localhost:8080/api/troqueles/filtrar?inventario=${inventario}`;
+            if (tipoTroquel) {
+                url += `&tipo=${tipoTroquel}`;
+            }
+            const response = await fetch(url);
+            const troqueles = await response.json();
+
+            const tbody = document.getElementById('troqueles-table').getElementsByTagName('tbody')[0];
+            tbody.innerHTML = ''; // Limpiar la tabla antes de agregar los nuevos datos
+
+            // Iterar sobre los troqueles y agregar las filas a la tabla
+            troqueles.forEach(troquel => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${troquel.numero}</td>
+                    <td>${troquel.tamanioCorteAncho} x ${troquel.tamanioCorteLargo}</td>
+                    <td>${troquel.ancho} x ${troquel.largo}${troquel.alto ? ' x ' + troquel.alto : ''}</td>
+                    <td>${troquel.tipo}</td>
+                    <td>${troquel.descripcion}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        } catch (error) {
+            console.error('Error al cargar los troqueles:', error);
+        }
+    }
+
+    // Cargar los troqueles por defecto (inventario grande) cuando la página se cargue
+    document.addEventListener('DOMContentLoaded', () => {
+        cargarTroqueles();
+    });
+
+    // Agregar un listener para que se recargue la tabla cuando cambie el inventario o tipo de troquel
+    document.getElementById('inventario').addEventListener('change', () => {
+        cargarTroqueles();
+    });
+    document.getElementById('tipoTroquel').addEventListener('change', () => {
+        cargarTroqueles();
+    });
+</script>
+
+</body>
+</html>
