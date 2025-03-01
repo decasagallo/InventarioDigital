@@ -39,6 +39,7 @@ table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
+    table-layout: auto; /* Ajusta las celdas automáticamente según el contenido */
 }
 
 th, td {
@@ -77,4 +78,43 @@ h1 {
     text-align: center;
     color: #333;
     flex-grow: 1; /* Para que el título se alinee a la izquierda si lo deseas */
+}
+
+/* Media Queries para hacer la tabla responsiva en dispositivos móviles */
+@media (max-width: 768px) {
+    /* Asegurarse de que la tabla se pueda desplazar horizontalmente */
+    .container {
+        overflow-x: auto; /* Añade desplazamiento horizontal si es necesario */
+    }
+
+    table {
+        width: 100%; /* La tabla ocupa todo el ancho disponible */
+        table-layout: auto; /* Asegura que las celdas se ajusten al contenido */
+    }
+
+    th, td {
+        padding: 8px;
+        font-size: 14px; /* Reduce el tamaño de la fuente para pantallas pequeñas */
+        word-wrap: break-word; /* Asegura que el contenido largo no se desborde */
+    }
+
+    th {
+        font-size: 16px; /* Aumenta ligeramente el tamaño de la fuente en los encabezados */
+    }
+
+    td.null {
+        font-size: 14px;
+    }
+
+    /* Para asegurar que el logo y el título se ajusten bien en pantallas pequeñas */
+    .header {
+        flex-direction: column; /* Cambia la dirección del contenido para que el logo y el título se apilen */
+        align-items: center; /* Centra el contenido */
+        text-align: center; /* Centra el título */
+    }
+
+    .logo {
+        width: 200px; /* Ajusta el tamaño del logo en pantallas pequeñas */
+        margin-bottom: 10px; /* Añade espacio debajo del logo */
+    }
 }
