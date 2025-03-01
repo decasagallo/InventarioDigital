@@ -6,9 +6,7 @@ import ec.com.ecuamag.InventarioDigital.repository.TroquelRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.logging.Level;
@@ -21,9 +19,15 @@ public class CsvImportService {
     private TroquelRepository troquelRepository;
 
     private static final Logger LOGGER = Logger.getLogger(CsvImportService.class.getName());
+    private static final String CSV_PATH = "data/DatosInventarioEcuamag.csv"; // Ruta en 'src/main/resources/data/'
 
-    public void importarDatosDesdeCsv(String filePath) {
-        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+    public void importarDatosDesdeCsv() {
+        try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(CSV_PATH)) {
+            if (inputStream == null) {
+                throw new IOException("No se encontró el archivo CSV en los recursos.");
+            }
+
+            BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
             String linea;
             boolean primeraLinea = true; // Para omitir el encabezado
 
@@ -55,7 +59,7 @@ public class CsvImportService {
                     troquel.setNumero(Integer.parseInt(registro[0].trim()));
                 } catch (NumberFormatException e) {
                     LOGGER.log(Level.WARNING, "Número de troquel inválido en la fila: {0}", linea);
-                    continue;  // O puedes asignar un valor predeterminado
+                    continue;
                 }
                 troquel.setTamanioCorteAncho(parseBigDecimal(registro[1]));
                 troquel.setTamanioCorteLargo(parseBigDecimal(registro[2]));
@@ -65,7 +69,6 @@ public class CsvImportService {
                 troquel.setInventario(parseInventario(registro[6]));
                 troquel.setTipo(parseTipoTroquel(tipoTroquelStr)
                         .orElseThrow(() -> new IllegalArgumentException("Tipo de troquel inválido: " + tipoTroquelStr)));
-
 
                 // Asignar valores específicos por tipo de troquel
                 switch (tipoTroquelStr) {
@@ -87,9 +90,8 @@ public class CsvImportService {
                         break;
                     case "FORMA":
                         if (troquel instanceof Forma forma) {
-                           forma.setTipoForma(parseTipoForma(registro[11]));
+                            forma.setTipoForma(parseTipoForma(registro[11]));
                         }
-
                         break;
                     case "CARPETA":
                         if (troquel instanceof Carpeta carpeta) {
@@ -104,7 +106,6 @@ public class CsvImportService {
                     case "FUNDA":
                         troquel = new Troquel() {}; // Se crea un Troquel sin atributos adicionales
                         break;
-
                     default:
                         LOGGER.log(Level.WARNING, "Tipo de troquel desconocido: {0}", tipoTroquelStr);
                         continue;
@@ -135,16 +136,16 @@ public class CsvImportService {
     private Integer parseInteger(String value) {
         return (value == null || value.trim().isEmpty()) ? null : Integer.parseInt(value.trim());
     }
+
     private BigDecimal parseBigDecimal(String value) {
         return (value == null || value.isEmpty()) ? null : new BigDecimal(value.trim());
     }
-
 
     private Orientacion parseOrientacion(String value) {
         try {
             return Orientacion.valueOf(value.trim().toUpperCase());
         } catch (IllegalArgumentException | NullPointerException e) {
-            return null; // Si el valor no es válido, devuelve null
+            return null;
         }
     }
 
@@ -164,12 +165,11 @@ public class CsvImportService {
         }
     }
 
-
     private Inventario parseInventario(String value) {
         try {
             return Inventario.valueOf(value.toUpperCase());
         } catch (IllegalArgumentException e) {
-            return null; // Si el valor no es válido, devuelve null
+            return null;
         }
     }
 
@@ -180,6 +180,7 @@ public class CsvImportService {
             return null;
         }
     }
+
     private TipoForma parseTipoForma(String value) {
         try {
             return TipoForma.valueOf(value.toUpperCase());
@@ -198,5 +199,4 @@ public class CsvImportService {
             return Optional.empty();
         }
     }
-
 }

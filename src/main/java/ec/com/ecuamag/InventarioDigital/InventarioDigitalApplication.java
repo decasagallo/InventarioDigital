@@ -5,7 +5,6 @@ import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 
 @SpringBootApplication
@@ -22,8 +21,7 @@ public class InventarioDigitalApplication {
 	@Bean
 	CommandLineRunner run(CsvImportService csvImportService) {
 		return args -> {
-			String filePath = "C:/Users/Diego/Downloads/DatosInventarioEcuamag.csv"; // Ruta del archivo CSV
-			csvImportService.importarDatosDesdeCsv(filePath);
+			csvImportService.importarDatosDesdeCsv(); // Eliminado el parámetro filePath
 			System.out.println("📥 Importación de datos desde CSV completada.");
 		};
 	}

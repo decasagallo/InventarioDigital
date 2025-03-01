@@ -33,7 +33,7 @@ public class TroquelController {
     @Autowired
     private CajaRepository cajaRepository;
 
-    private static final String CSV_FILE_PATH = "data/DatosInventarioEcuamag.csv";  // Ruta interna del recurso
+    private static final String CSV_FILE_PATH = "/data/DatosInventarioEcuamag.csv";  // Ruta interna del recurso
 
     @PostMapping("/importar")
     public String importarCSV() {

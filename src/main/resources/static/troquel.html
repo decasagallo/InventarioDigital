@@ -10,7 +10,8 @@
 
 <div class="container">
     <div class="header">
-        <img src="logoEcuamag.PNG" alt="Logo Ecuamag" class="logo">
+        <img src="/public/logoEcuamag.PNG" alt="Logo Ecuamag" class="logo">
+
         <h1>Lista de Troqueles</h1>
     </div>
 
@@ -59,7 +60,7 @@
 
         try {
             // Realizar la llamada a la API con los parámetros de inventario y tipo
-            let url = `http://localhost:8080/api/troqueles/filtrar?inventario=${inventario}`;
+            let url = `http://localhost:8081/api/troqueles/filtrar?inventario=${inventario}`;
             if (tipoTroquel) {
                 url += `&tipo=${tipoTroquel}`;
             }
