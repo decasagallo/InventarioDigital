@@ -14,6 +14,6 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowedOrigins("https://inventariodigital.onrender.com") // Agrega tu dominio específico
                 .allowedMethods("GET", "POST", "PUT", "DELETE") // Métodos HTTP permitidos
                 .allowedHeaders("Authorization", "Content-Type") // Encabezados permitidos
-                .allowCredentials(true); // Permite el uso de cookies y credenciales
+                ; // Permite el uso de cookies y credenciales
     }
 }
