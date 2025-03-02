@@ -1,68 +1,70 @@
-// Función para cargar los troqueles desde la API
+document.addEventListener('DOMContentLoaded', () => {
+    cargarTroqueles();
+    manejarFiltrosAdicionales();
+});
+
+document.getElementById('inventario')?.addEventListener('change', cargarTroqueles);
+document.getElementById('tipoTroquel')?.addEventListener('change', () => {
+    cargarTroqueles();
+    manejarFiltrosAdicionales();
+});
+
+document.getElementById('medioSobre')?.addEventListener('change', cargarTroqueles);
+
 async function cargarTroqueles() {
     const inventario = document.getElementById('inventario').value;
     const tipoTroquel = document.getElementById('tipoTroquel').value;
-    const orientacion = document.getElementById('orientacion') ? document.getElementById('orientacion').value : '';
+    const orientacion = document.getElementById('orientacion')?.value || '';
+    const tipoSolapa = document.getElementById('tipoSolapa')?.value || '';
+    const ancho = document.getElementById('ancho')?.value || '';
+    const largo = document.getElementById('largo')?.value || '';
+    const medioSobre = document.getElementById('medioSobre')?.value || '';
+
+    let url = `https://inventariodigital.onrender.com/api/troqueles/filtrar?inventario=${inventario}`;
+    if (tipoTroquel) url += `&tipo=${tipoTroquel}`;
+    if (orientacion) url += `&orientacion=${orientacion}`;
+    if (tipoSolapa) url += `&tipoSolapa=${tipoSolapa}`;
+    if (ancho) url += `&ancho=${ancho}`;
+    if (largo) url += `&largo=${largo}`;
+    if (medioSobre) url += `&medioSobre=${medioSobre}`;
 
     try {
-        // Realizar la llamada a la API con los parámetros de inventario, tipo y orientación
-        let url = `https://inventariodigital.onrender.com/api/troqueles/filtrar?inventario=${inventario}`;
-        if (tipoTroquel) {
-            url += `&tipo=${tipoTroquel}`;
-        }
-        if (orientacion) {
-            url += `&orientacion=${orientacion}`;
-        }
-
         const response = await fetch(url);
         const troqueles = await response.json();
-
-        const tbody = document.getElementById('troqueles-table').getElementsByTagName('tbody')[0];
-        tbody.innerHTML = ''; // Limpiar la tabla antes de agregar los nuevos datos
-
-        // Iterar sobre los troqueles y agregar las filas a la tabla
-        troqueles.forEach(troquel => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${troquel.numero}</td>
-                <td>${troquel.tamanioCorteAncho} x ${troquel.tamanioCorteLargo}</td>
-                <td>${troquel.ancho} x ${troquel.largo}${troquel.alto ? ' x ' + troquel.alto : ''}</td>
-                <td>${troquel.tipo}</td>
-                <td>${troquel.descripcion}</td>
-            `;
-            tbody.appendChild(tr);
-        });
+        actualizarTabla(troqueles);
     } catch (error) {
         console.error('Error al cargar los troqueles:', error);
     }
 }
 
-// Función para mostrar/ocultar el filtro de orientación según el tipo de troquel seleccionado
-function mostrarFiltroOrientacion() {
-    const tipoTroquel = document.getElementById('tipoTroquel').value;
-    const orientacionDiv = document.getElementById('orientacionDiv');
+function actualizarTabla(troqueles) {
+    const tbody = document.getElementById('troqueles-table').querySelector('tbody');
+    tbody.innerHTML = '';
 
-    // Si el tipo de troquel es "Sobre", mostramos el filtro de orientación
-    if (tipoTroquel === 'SOBRE') {
-        orientacionDiv.style.display = 'block';
-    } else {
-        orientacionDiv.style.display = 'none';
+    if (troqueles.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5">No se encontraron troqueles con los filtros seleccionados.</td></tr>';
+        return;
     }
 
-    // Recargar los troqueles cuando cambien los filtros
-    cargarTroqueles();
+    troqueles.forEach(troquel => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${troquel.numero}</td>
+            <td>${troquel.tamanioCorteAncho} x ${troquel.tamanioCorteLargo}</td>
+            <td>${troquel.ancho} x ${troquel.largo}${troquel.alto ? ' x ' + troquel.alto : ''}</td>
+            <td>${troquel.tipo}</td>
+            <td>${troquel.descripcion}</td>
+        `;
+        tbody.appendChild(tr);
+    });
 }
 
-// Cargar los troqueles por defecto (inventario grande) cuando la página se cargue
-document.addEventListener('DOMContentLoaded', () => {
-    cargarTroqueles();
-});
+function manejarFiltrosAdicionales() {
+    const tipoTroquel = document.getElementById('tipoTroquel').value;
+    const mostrar = tipoTroquel === 'SOBRE';
 
-// Agregar un listener para que se recargue la tabla cuando cambie el inventario, tipo de troquel o orientación
-document.getElementById('inventario').addEventListener('change', () => {
-    cargarTroqueles();
-});
-document.getElementById('tipoTroquel').addEventListener('change', mostrarFiltroOrientacion);
-document.getElementById('orientacion').addEventListener('change', () => {
-    cargarTroqueles();
-});
+    document.getElementById('orientacion-container').classList.toggle('hidden', !mostrar);
+    document.getElementById('tipoSolapa-container').classList.toggle('hidden', !mostrar);
+    document.getElementById('tamanios-container').classList.toggle('hidden', !mostrar);
+    document.getElementById('medioSobre-container').classList.toggle('hidden', !mostrar);
+}

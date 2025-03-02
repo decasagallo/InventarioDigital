@@ -1,29 +1,47 @@
 package ec.com.ecuamag.InventarioDigital.service;
 
 import ec.com.ecuamag.InventarioDigital.enums.Inventario;
+import ec.com.ecuamag.InventarioDigital.enums.Orientacion;
+import ec.com.ecuamag.InventarioDigital.enums.TipoSolapa;
+import ec.com.ecuamag.InventarioDigital.enums.TipoTroquel;
+import ec.com.ecuamag.InventarioDigital.model.Sobre;
 import ec.com.ecuamag.InventarioDigital.model.Troquel;
 import ec.com.ecuamag.InventarioDigital.repository.TroquelRepository;
+import ec.com.ecuamag.InventarioDigital.specification.TroquelSpecifications;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class TroquelService {
 
-    @Autowired
-    private TroquelRepository troquelRepository;
+    private final TroquelRepository troquelRepository;
 
-    // Obtener troqueles filtrados por inventario (grande o pequeño) y dimensiones
-    public List<Troquel> obtenerTroquelesPorInventario(String inventario) {
-        // Verificamos si el inventario es "GRANDE" o "PEQUEÑO" y hacemos la consulta correspondiente
-        if (inventario.equalsIgnoreCase("GRANDE")) {
-            return troquelRepository.findByInventarioOrderByNumeroAsc(Inventario.GRANDE);
-        } else if (inventario.equalsIgnoreCase("PEQUEÑO")) {
-            return troquelRepository.findByInventarioOrderByNumeroAsc(Inventario.PEQUENO);
-        }
-        // Si no es válido, devolvemos una lista vacía o manejamos el error de alguna otra manera
-        return new ArrayList<>();
+    public TroquelService(TroquelRepository troquelRepository) {
+        this.troquelRepository = troquelRepository;
     }
+
+    // Método para obtener troqueles filtrados
+
+   // 📌 Filtrar por Inventario (GRANDE o PEQUEÑO) y ordenar por número
+    public List<Troquel> filtrarPorInventario(Inventario inventario) {
+        return troquelRepository.findByInventarioOrderByNumeroAsc(inventario);
+    }
+
+    // 📌 Filtrar por Inventario y TipoTroquel y ordenar por número
+    public List<Troquel> filtrarPorInventarioYTipo(Inventario inventario, TipoTroquel tipo) {
+        return troquelRepository.findByInventarioAndTipoOrderByNumeroAsc(inventario, tipo);
+    }
+
+
+
+
+
+
 }

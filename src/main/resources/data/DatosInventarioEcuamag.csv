@@ -1,9 +1,12 @@
 numero,tamanioCorteAncho,tamanoCorteLargo,ancho,largo,descripcion,Inventario,TipoTroquel,Orientacion,TipoSolapa,TipoCarpeta,TipoForma,TipoParte,Alto
 1,33.5,23,20,16,sobre  horizontal rectangular con solapa larga en punta,GRANDE,SOBRE,HORIZONTAL,LARGA_EN_PUNTA,,,,
 2,47,35,21,29,carpeta con bolsillo redondo,GRANDE,CARPETA,,,CON_BOLSILLO,,,
-3,10,7,3,3,circulo(3 circulos) de diametro 3cm,PEQUENO,FORMA,,,,CIRCULO,,
-4,45,23,25,20,parte grafado en dos con troquelado de flores,GRANDE,PARTE,,,,,TARJETA_DOBLE_CON_FORMAS,
-5,20,14,5.5,7,ovalo,PEQUENO,FORMA,,,,OVALO,,
-6,33,23,20,16,sobre  horizontal rectangular con solapa corta en punta,GRANDE,SOBRE,VERTICAL,CORTA_EN_PUNTA,,,,
-4,20,14,5,2,Caja + tapa  de fosforos,PEQUENO,CAJA,,,,,,2
-1,20,14,4,6,tags de navidad,PEQUENO,FORMA,,,,RECTANGULO,,
+1,10,7,3,3,circulo(3 circulos) de diametro 3cm,PEQUENO,FORMA,,,,CIRCULO,,
+3,45,23,25,20,parte grafado en dos con troquelado de flores,GRANDE,PARTE,,,,,TARJETA_DOBLE_CON_FORMAS,
+2,20,14,5.5,7,ovalo,PEQUENO,FORMA,,,,OVALO,,
+4,33,23,20,16,sobre  horizontal rectangular con solapa corta en punta,GRANDE,SOBRE,VERTICAL,CORTA_EN_PUNTA,,,,
+3,20,14,5,2,Caja + tapa  de fosforos,PEQUENO,CAJA,,,,,,2
+4,20,14,4,6,tags de navidad,PEQUENO,FORMA,,,,RECTANGULO,,
+5,20,16,10,7,sobre rectangular vertical con solapa  corta recta,GRANDE,SOBRE,VERTICAL,CORTA_RECTA,,,,
+5,15,10,8,9,Sobre sobre rectangular vertical con solapa  larga recta,PEQUENO,SOBRE,VERTICAL,LARGA_RECTA,,,,
+6,25,22,15,20,sobre rectangular vertical con solapa  corta recta,GRANDE,SOBRE,VERTICAL,CORTA_RECTA,,,,

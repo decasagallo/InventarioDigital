@@ -1,120 +1,112 @@
-/* Estilo para el cuerpo y la estructura general */
 body {
     font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
     margin: 0;
     padding: 0;
+    background-color: #f4f4f4;
 }
 
 .container {
-    width: 80%;
+    width: 90%;
     margin: 20px auto;
-    background-color: white;
     padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    background-color: #ffffff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-h1 {
-    text-align: center;
-    color: #333;
-}
-
-/* Estilo para el filtro */
-label {
-    font-size: 16px;
-    margin-right: 10px;
-}
-
-select {
-    font-size: 16px;
-    padding: 5px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    margin-bottom: 20px;
-}
-
-/* Estilo para la tabla */
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-    table-layout: auto; /* Ajusta las celdas automáticamente según el contenido */
-}
-
-th, td {
-    padding: 12px;
-    text-align: center;
-    border: 1px solid #ddd;
-}
-
-th {
-    background-color: #f2f2f2;
-}
-
-td {
-    background-color: #fafafa;
-}
-
-td.null {
-    color: #888;
-    font-style: italic;
-}
-
-/* Estilo para la cabecera (logo + título) */
 .header {
     display: flex;
     align-items: center;
-    margin-bottom: 30px; /* Espacio entre la cabecera y la tabla */
+    justify-content: center;
+    margin-bottom: 20px;
 }
 
 .logo {
-    width: 250px; /* Ajusta el tamaño según necesites */
+    width: 300px;
     height: auto;
     margin-right: 20px;
 }
 
 h1 {
-    text-align: center;
     color: #333;
-    flex-grow: 1; /* Para que el título se alinee a la izquierda si lo deseas */
+    margin-top: 0;
+    text-align: center;
+    flex-grow: 1;
 }
 
-/* Media Queries para hacer la tabla responsiva en dispositivos móviles */
-@media (max-width: 768px) {
-    /* Asegurarse de que la tabla se pueda desplazar horizontalmente */
-    .table-container {
-        overflow-x: auto; /* Añade desplazamiento horizontal si es necesario */
-    }
+select, input {
+    width: 180px;
+    padding: 6px;
+    margin-right: 10px;
+    border: 1px solid #FF4500;
+    border-radius: 4px;
+    font-size: 0.9em;
+    background-color: #FF4500;
+    color: white;
+}
 
-    table {
-        width: 100%; /* La tabla ocupa todo el ancho disponible */
-        table-layout: auto; /* Asegura que las celdas se ajusten al contenido */
-    }
+.filter-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: center;
+    margin-bottom: 20px;
+}
 
-    th, td {
-        padding: 8px;
-        font-size: 14px; /* Reduce el tamaño de la fuente para pantallas pequeñas */
-        word-wrap: break-word; /* Asegura que el contenido largo no se desborde */
-    }
+.table-container {
+    margin-top: 20px;
+}
 
-    th {
-        font-size: 16px; /* Aumenta ligeramente el tamaño de la fuente en los encabezados */
-    }
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
 
-    td.null {
-        font-size: 14px;
-    }
+table, th, td {
+    border: 1px solid #000;
+}
 
-    /* Para asegurar que el logo y el título se ajusten bien en pantallas pequeñas */
-    .header {
-        flex-direction: column; /* Cambia la dirección del contenido para que el logo y el título se apilen */
-        align-items: center; /* Centra el contenido */
-        text-align: center; /* Centra el título */
-    }
+th {
+    background-color: #FF4500;
+    color: white;
+    padding: 10px;
+    text-align: left;
+}
 
-    .logo {
-        width: 200px; /* Ajusta el tamaño del logo en pantallas pequeñas */
-        margin-bottom: 10px; /* Añade espacio debajo del logo */
-    }
+td {
+    background-color: rgba(255, 69, 0, 0.4);
+    padding: 10px;
+    text-align: left;
+}
+
+.hidden {
+    display: none !important;
+}
+
+
+.filtro-adicional {
+    display: flex;
+    flex-direction: column;
+    margin-right: 10px;
+}
+.input-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+
+.input-field {
+    width: 35px;  /* Reducido a 60px para que solo ocupen 4 dígitos */
+    padding: 5px;
+    text-align: center;
+}
+label, button {
+    font-weight: bold;
+}
+#orientacion, #tipoSolapa, #medioSobre {
+    width: 90px; /* Ajusta el valor según lo que necesites */
+    padding: 5px; /* Ajusta el espacio interno */
+    font-weight: bold; /* Si quieres que el texto sea en negrita */
+    font-size: 12px; /* Ajusta el tamaño de la letra */
 }

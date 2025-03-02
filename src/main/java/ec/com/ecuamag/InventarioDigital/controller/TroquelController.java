@@ -1,39 +1,50 @@
 package ec.com.ecuamag.InventarioDigital.controller;
 
+import com.opencsv.CSVReader;
+import com.opencsv.exceptions.CsvException;
 import ec.com.ecuamag.InventarioDigital.enums.Inventario;
+import ec.com.ecuamag.InventarioDigital.enums.Orientacion;
+import ec.com.ecuamag.InventarioDigital.enums.TipoSolapa;
 import ec.com.ecuamag.InventarioDigital.enums.TipoTroquel;
 import ec.com.ecuamag.InventarioDigital.model.Bolsa;
 import ec.com.ecuamag.InventarioDigital.model.Caja;
+import ec.com.ecuamag.InventarioDigital.model.Sobre;
 import ec.com.ecuamag.InventarioDigital.model.Troquel;
 import ec.com.ecuamag.InventarioDigital.repository.TroquelRepository;
 import ec.com.ecuamag.InventarioDigital.repository.BolsaRepository;
 import ec.com.ecuamag.InventarioDigital.repository.CajaRepository;
-import com.opencsv.CSVReader;
-import com.opencsv.exceptions.CsvException;
+import ec.com.ecuamag.InventarioDigital.service.SobreService;
+import ec.com.ecuamag.InventarioDigital.service.TroquelService;
+import ec.com.ecuamag.InventarioDigital.specification.TroquelSpecifications;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/troqueles")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "*") // Permite peticiones desde cualquier origen
+
 public class TroquelController {
+    private final TroquelService troquelService;
 
-    @Autowired
-    private TroquelRepository troquelRepository;
 
-    @Autowired
-    private BolsaRepository bolsaRepository;
+    // Inyección por constructor
+    public TroquelController(TroquelService troquelService) {
+        this.troquelService = troquelService;
 
-    @Autowired
-    private CajaRepository cajaRepository;
+    }
 
-    private static final String CSV_FILE_PATH = "/data/DatosInventarioEcuamag.csv";  // Ruta interna del recurso
+
+
+   /* private static final String CSV_FILE_PATH = "/data/DatosInventarioEcuamag.csv";  // Ruta interna del recurso
 
     @PostMapping("/importar")
     public String importarCSV() {
@@ -106,21 +117,24 @@ public class TroquelController {
             e.printStackTrace();
             return "Error al importar el archivo CSV.";
         }
+    }*/
+
+
+    // Filtrar por Inventario (GRANDE o PEQUEÑO)
+    @GetMapping("/filtrar/inventario")
+    public List<Troquel> getTroquelesByInventario(@RequestParam Inventario inventario) {
+        return troquelService.filtrarPorInventario(inventario);
+    }
+    //Filtrar por TipoTroquel dentro de un Inventario
+    @GetMapping("/filtrar/inventario-y-tipo")
+    public List<Troquel> getTroquelesByInventarioAndTipo(
+            @RequestParam Inventario inventario,
+            @RequestParam TipoTroquel tipo
+    ) {
+        return troquelService.filtrarPorInventarioYTipo(inventario, tipo);
     }
 
-    // Modificado para filtrar por inventario y tipo
-    @GetMapping("/filtrar")
-    public List<Troquel> obtenerTroquelesPorInventarioYTipo(@RequestParam String inventario, @RequestParam(required = false) String tipo) {
-        Inventario inventarioEnum = Inventario.valueOf(inventario.toUpperCase());
 
-        // Si tipo es null o vacío, no filtrar por tipo
-        if (tipo == null || tipo.isEmpty()) {
-            return troquelRepository.findByInventarioOrderByNumeroAsc(inventarioEnum);
-        } else {
-            TipoTroquel tipoEnum = TipoTroquel.valueOf(tipo.toUpperCase());
-            return troquelRepository.findByInventarioAndTipoOrderByNumeroAsc(inventarioEnum, tipoEnum);
-        }
-    }
 
     private Integer parseInteger(String value) {
         return (value == null || value.isEmpty()) ? null : Integer.parseInt(value.trim());
