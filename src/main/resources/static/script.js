@@ -1,4 +1,5 @@
-const API_BASE_URL = "http://127.0.0.1:8080"; // Usa 127.0.0.1 en lugar de localhost
+const API_BASE_URL = "https://inventariodigital.onrender.com";
+// Usa 127.0.0.1 en lugar de localhost
 
 document.addEventListener("DOMContentLoaded", function () {
     const tipoTroquelSelect = document.getElementById("tipoTroquel");
