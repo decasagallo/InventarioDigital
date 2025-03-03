@@ -1,3 +1,4 @@
+/* Estilos generales */
 body {
     font-family: Arial, sans-serif;
     margin: 0;
@@ -33,6 +34,7 @@ h1 {
     flex-grow: 1;
 }
 
+/* Estilos para selects y inputs */
 select, input {
     width: 180px;
     padding: 6px;
@@ -44,6 +46,7 @@ select, input {
     color: white;
 }
 
+/* Filtros y filas */
 .filter-row {
     display: flex;
     flex-wrap: wrap;
@@ -52,6 +55,19 @@ select, input {
     margin-bottom: 20px;
 }
 
+.filtro-adicional {
+    display: flex;
+    flex-direction: column;
+    margin-right: 10px;
+}
+
+.input-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Estilos de tabla */
 .table-container {
     margin-top: 20px;
 }
@@ -79,33 +95,72 @@ td {
     text-align: left;
 }
 
+/* Ocultar elementos */
 .hidden {
     display: none !important;
 }
 
-
-.filtro-adicional {
-    display: flex;
-    flex-direction: column;
-    margin-right: 10px;
-}
-.input-group {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-
+/* Estilos de los campos de entrada */
 .input-field {
-    width: 40px;  /* Reducido a 60px para que solo ocupen 4 dígitos */
+    width: 40px;  /* Reducido a 40px para que solo ocupen 4 dígitos */
     padding: 5px;
     text-align: center;
 }
+
+/* Estilos de etiquetas y botones */
 label, button {
     font-weight: bold;
 }
-#orientacion, #tipoSolapa,#tipoSobre  {
+
+/* Estilo para selects específicos */
+#orientacion, #tipoSolapa, #tipoSobre {
     width: 120px; /* Ajusta el valor según lo que necesites */
     padding: 5px; /* Ajusta el espacio interno */
     font-weight: bold; /* Si quieres que el texto sea en negrita */
+}
+
+/* Media Queries para mejorar la visualización en dispositivos más pequeños */
+@media screen and (max-width: 768px) {
+    .filter-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    select, input {
+        width: 100%;  /* Asegura que los inputs y selects ocupen el ancho completo en pantallas pequeñas */
+    }
+
+    .input-field {
+        width: 100%;  /* Ancho completo en pantallas pequeñas */
+    }
+
+    .table-container {
+        padding: 0 10px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    body {
+        font-size: 14px;
+    }
+
+    h1 {
+        font-size: 22px;
+    }
+
+    .logo {
+        width: 150px;
+    }
+
+    .filter-row div {
+        min-width: 100%;
+    }
+
+    table {
+        font-size: 12px;
+    }
+
+    th, td {
+        padding: 8px;
+    }
 }
