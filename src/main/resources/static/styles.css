@@ -105,6 +105,7 @@ td {
     width: 40px;  /* Reducido a 40px para que solo ocupen 4 dígitos */
     padding: 5px;
     text-align: center;
+    color: white;
 }
 
 /* Estilos de etiquetas y botones */
