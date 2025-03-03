@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inventario</title>
+    <title>Inventario Ecuamag</title>
     <link rel="stylesheet" href="styles.css">
+    <script defer src="script.js"></script>
 </head>
 <body>
 
@@ -14,123 +15,90 @@
         <h1>Lista de Troqueles</h1>
     </div>
 
-    <!-- Filtro por Inventario -->
-    <label for="inventario">Selecciona una lista:</label>
-    <select id="inventario">
-        <option value="GRANDE">Troqueles Grandes</option>
-        <option value="PEQUENO">Troqueles Pequeños</option>
-    </select>
+    <div class="filter-row">
+        <div>
+            <label for="inventario">Selecciona una lista:</label>
+            <select id="inventario">
+                <option value="GRANDE">Troqueles Grandes</option>
+                <option value="PEQUENO">Troqueles Pequeños</option>
+            </select>
+        </div>
 
-    <!-- Filtro por Tipo de Troquel -->
-    <label for="tipoTroquel">Selecciona un tipo de troquel:</label>
-    <select id="tipoTroquel">
-        <option value="">Todos</option>
-        <option value="SOBRE">Sobre</option>
-        <option value="BOLSA">Bolsa</option>
-        <option value="CAJA">Caja</option>
-        <option value="CARPETA">Carpeta</option>
-        <option value="PARTE">Parte</option>
-        <option value="FORMA">Forma</option>
-        <option value="FUNDA">Funda</option>
-    </select>
-
-    <!-- Filtro por Orientación (solo aparece cuando se selecciona "Sobre") -->
-    <div id="orientacionDiv" style="display: none;">
-        <label for="orientacion">Selecciona la orientación:</label>
-        <select id="orientacion">
-            <option value="">Todos</option>
-            <option value="HORIZONTAL">Horizontal</option>
-            <option value="VERTICAL">Vertical</option>
-        </select>
+        <div>
+            <label for="tipoTroquel">Tipo de troquel:</label>
+            <select id="tipoTroquel">
+                <option value="TODOS">Todos</option>
+                <option value="SOBRE">Sobre</option>
+                <option value="BOLSA">Bolsa</option>
+                <option value="CAJA">Caja</option>
+                <option value="CARPETA">Carpeta</option>
+                <option value="PARTE">Parte</option>
+                <option value="FORMA">Forma</option>
+                <option value="FUNDA">Funda</option>
+            </select>
+        </div>
     </div>
 
-    <!-- Tabla para mostrar los troqueles -->
-    <table id="troqueles-table">
-        <thead>
-        <tr>
-            <th>Número de Troquel</th>
-            <th>Tamaño de Corte</th>
-            <th>Tamaño Cerrado</th>
-            <th>Tipo de troquel</th>
-            <th>Descripción</th>
-        </tr>
-        </thead>
-        <tbody>
-        <!-- Los datos se llenarán con JavaScript -->
-        </tbody>
-    </table>
+
+    <div class="filter-row">
+
+        <div class="hidden" id="tipoSobre-container">
+            <label for="tipoSobre">Tipo de sobre:</label>
+            <select id="tipoSobre">
+                <option value="">todos</option>
+                <option value="CUADRADO">Cuadrado</option>
+                <option value="RECTANGULAR">Rectangular</option>
+                <option value="MEDIO_SOBRE">Medio Sobre</option>
+            </select>
+        </div>
+
+        <div class="hidden" id="orientacion-container">
+            <label for="orientacion">Orientación:</label>
+            <select id="orientacion">
+                <option value="">todos</option>
+                <option value="HORIZONTAL">Horizontal</option>
+                <option value="VERTICAL">Vertical</option>
+            </select>
+        </div>
+
+        <div class="hidden" id="tipoSolapa-container">
+                <label for="tipoSolapa">Tipo de solapa:</label>
+            <select id="tipoSolapa">
+                <option value="">Seleccione</option>
+                <option value="CORTA_EN_PUNTA">Corta en punta </option>
+                <option value="LARGA_EN_PUNTA">Larga en punta</option>
+                <option value="CORTA_PUNTA_REDONDA">Corta punta redonda</option>
+                <option value="LARGA_PUNTA_REDONDA">Larga punta redonda</option>
+                <option value="CORTA_RECTA">Corta recta</option>
+                <option value="LARGA_RECTA">Larga recta</option>
+            </select>
+        </div>
+
+
+        <div class="input-group hidden" id="tamanios-container">
+            <label for="ancho">Ancho:</label>
+            <input type="text" id="ancho" placeholder="Cm" class="input-field">
+            <label for="largo">Largo:</label>
+            <input type="text" id="largo" placeholder="Cm" class="input-field">
+        </div>
+    </div>
+
+    <div class="table-container">
+        <table id="troqueles-table">
+            <thead>
+            <tr>
+                <th>Número de Troquel</th>
+                <th>Tamaño de Corte</th>
+                <th>Tamaño Cerrado</th>
+                <th>Tipo de Troquel</th>
+                <th>Descripción</th>
+            </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
 </div>
-
-<script>
-    // Función para cargar los troqueles desde la API
-    async function cargarTroqueles() {
-        const inventario = document.getElementById('inventario').value;
-        const tipoTroquel = document.getElementById('tipoTroquel').value;
-        const orientacion = document.getElementById('orientacion') ? document.getElementById('orientacion').value : '';
-
-        try {
-            // Realizar la llamada a la API con los parámetros de inventario, tipo y orientación
-            let url = `https://inventariodigital.onrender.com/api/troqueles/filtrar?inventario=${inventario}`;
-            if (tipoTroquel) {
-                url += `&tipo=${tipoTroquel}`;
-            }
-            if (orientacion) {
-                url += `&orientacion=${orientacion}`;
-            }
-
-            const response = await fetch(url);
-            const troqueles = await response.json();
-
-            const tbody = document.getElementById('troqueles-table').getElementsByTagName('tbody')[0];
-            tbody.innerHTML = ''; // Limpiar la tabla antes de agregar los nuevos datos
-
-            // Iterar sobre los troqueles y agregar las filas a la tabla
-            troqueles.forEach(troquel => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${troquel.numero}</td>
-                    <td>${troquel.tamanioCorteAncho} x ${troquel.tamanioCorteLargo}</td>
-                    <td>${troquel.ancho} x ${troquel.largo}${troquel.alto ? ' x ' + troquel.alto : ''}</td>
-                    <td>${troquel.tipo}</td>
-                    <td>${troquel.descripcion}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-        } catch (error) {
-            console.error('Error al cargar los troqueles:', error);
-        }
-    }
-
-    // Función para mostrar/ocultar el filtro de orientación según el tipo de troquel seleccionado
-    function mostrarFiltroOrientacion() {
-        const tipoTroquel = document.getElementById('tipoTroquel').value;
-        const orientacionDiv = document.getElementById('orientacionDiv');
-
-        // Si el tipo de troquel es "Sobre", mostramos el filtro de orientación
-        if (tipoTroquel === 'SOBRE') {
-            orientacionDiv.style.display = 'block';
-        } else {
-            orientacionDiv.style.display = 'none';
-        }
-
-        // Recargar los troqueles cuando cambien los filtros
-        cargarTroqueles();
-    }
-
-    // Cargar los troqueles por defecto (inventario grande) cuando la página se cargue
-    document.addEventListener('DOMContentLoaded', () => {
-        cargarTroqueles();
-    });
-
-    // Agregar un listener para que se recargue la tabla cuando cambie el inventario, tipo de troquel o orientación
-    document.getElementById('inventario').addEventListener('change', () => {
-        cargarTroqueles();
-    });
-    document.getElementById('tipoTroquel').addEventListener('change', mostrarFiltroOrientacion);
-    document.getElementById('orientacion').addEventListener('change', () => {
-        cargarTroqueles();
-    });
-</script>
 
 </body>
 </html>

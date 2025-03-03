@@ -18,11 +18,11 @@ public class InventarioDigitalApplication {
 		SpringApplication.run(InventarioDigitalApplication.class, args);
 	}
 
-	/*@Bean
+	@Bean
 	CommandLineRunner run(CsvImportService csvImportService) {
 		return args -> {
 			csvImportService.importarDatosDesdeCsv(); // Eliminado el parámetro filePath
 			System.out.println("📥 Importación de datos desde CSV completada.");
 		};
-	}*/
+	}
 }

@@ -40,7 +40,7 @@ public class CsvImportService {
                 String[] registro = linea.split(",");
 
                 // Validar que la fila tenga suficientes columnas
-                if (registro.length < 5) {
+                if (registro.length < 4) { // Se esperan al menos 9 campos
                     LOGGER.log(Level.WARNING, "Fila ignorada por datos incompletos: {0}", linea);
                     continue;
                 }
@@ -74,18 +74,19 @@ public class CsvImportService {
                 switch (tipoTroquelStr) {
                     case "SOBRE":
                         if (troquel instanceof Sobre sobre) {
-                            sobre.setOrientacion(parseOrientacion(registro[8].trim()));
-                            sobre.setTipoSolapa(parseTipoSolapa(registro[9].trim()));
+                            sobre.setOrientacion(parseOrientacion(registro[8]));
+                            sobre.setTipoSolapa(parseTipoSolapa(registro[9]));
+                            sobre.setTipoSobre(parseTipoSobre(registro[14]));
                         }
                         break;
                     case "CAJA":
                         if (troquel instanceof Caja caja) {
-                            caja.setAlto(parseInteger(registro[8]));
+                            caja.setAlto(parseInteger(registro[13]));
                         }
                         break;
                     case "BOLSA":
                         if (troquel instanceof Bolsa bolsa) {
-                            bolsa.setAlto(parseInteger(registro[8]));
+                            bolsa.setAlto(parseInteger(registro[13]));
                         }
                         break;
                     case "FORMA":
@@ -95,16 +96,16 @@ public class CsvImportService {
                         break;
                     case "CARPETA":
                         if (troquel instanceof Carpeta carpeta) {
-                            carpeta.setTipoCarpeta(parseTipoCarpeta(registro[10].trim()));
+                            carpeta.setTipoCarpeta(parseTipoCarpeta(registro[10]));
                         }
                         break;
                     case "PARTE":
                         if (troquel instanceof Parte parte) {
-                            parte.setTipoParte(parseTipoParte(registro[12].trim()));
+                            parte.setTipoParte(parseTipoParte(registro[12]));
                         }
                         break;
                     case "FUNDA":
-                        troquel = new Troquel() {}; // Se crea un Troquel sin atributos adicionales
+                       // Se crea una funda sin atributos adicionales
                         break;
                     default:
                         LOGGER.log(Level.WARNING, "Tipo de troquel desconocido: {0}", tipoTroquelStr);
@@ -184,6 +185,14 @@ public class CsvImportService {
     private TipoForma parseTipoForma(String value) {
         try {
             return TipoForma.valueOf(value.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+    }
+
+    private TipoSobre parseTipoSobre(String value) {
+        try {
+            return TipoSobre.valueOf(value.toUpperCase());
         } catch (IllegalArgumentException e) {
             return null;
         }
