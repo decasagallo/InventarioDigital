@@ -21,7 +21,7 @@ public class SobreController {
 
     @GetMapping("/filtrar")
     public List<Sobre> filtrarSobres(
-            @RequestParam TipoSobre tipoSobre,
+            @RequestParam(required = false) TipoSobre tipoSobre,
             @RequestParam(required = false) Orientacion orientacion,
             @RequestParam(required = false) TipoSolapa tipoSolapa,
             @RequestParam(required = false) BigDecimal ancho,
