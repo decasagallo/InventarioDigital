@@ -1,6 +1,6 @@
 const API_BASE_URL = window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost"
     ? "http://127.0.0.1:8080" // Modo local
-    : "https://tu-api-en-render.com"; // Modo producción en Render
+    : "https://inventariodigital.onrender.com/"; // Modo producción en Render
 
 document.addEventListener("DOMContentLoaded", function () {
     // Elementos del DOM
