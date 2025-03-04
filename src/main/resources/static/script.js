@@ -1,8 +1,6 @@
-/*const API_BASE_URL = window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost"
+const API_BASE_URL = window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost"
     ? "http://127.0.0.1:8080" // Modo local
-    : "https://inventariodigital.onrender.com/"; // Modo producción en Render
-*/
-const API_BASE_URL = "https://inventariodigital.onrender.com/"; // Siempre se conecta a Render
+    : "https://inventariodigital.onrender.com"; // Modo producción en Render
 
 document.addEventListener("DOMContentLoaded", function () {
     // Elementos del DOM
@@ -95,12 +93,20 @@ document.addEventListener("DOMContentLoaded", function () {
             url = `${API_BASE_URL}/api/troqueles/filtrar/inventario-y-tipo?inventario=${inventario}&tipo=${tipo}`;
         }
 
-        console.log("URL troqueles:", url);
+        console.log("URL troqueles:", url); // Verifica la URL
 
         fetch(url)
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Error en la solicitud: ${response.statusText}`);
+                }
+                return response.json();
+            })
             .then(data => mostrarResultados(data))
-            .catch(error => console.error("Error en troqueles:", error));
+            .catch(error => {
+                console.error("Error al obtener troqueles:", error);
+                tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">Error en la solicitud: ${error.message}</td></tr>`;
+            });
     }
 
     // Obtener sobres con sus filtros específicos
@@ -119,30 +125,46 @@ document.addEventListener("DOMContentLoaded", function () {
         if (ancho) url += `&ancho=${ancho}`;
         if (largo) url += `&largo=${largo}`;
 
-        console.log("URL sobres:", url);
+        console.log("URL sobres:", url); // Verifica la URL
 
         fetch(url)
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Error en la solicitud: ${response.statusText}`);
+                }
+                return response.json();
+            })
             .then(data => mostrarResultados(data))
-            .catch(error => console.error("Error en sobres:", error));
+            .catch(error => {
+                console.error("Error en sobres:", error);
+                tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">Error en la solicitud: ${error.message}</td></tr>`;
+            });
     }
 
     // Mostrar resultados en la tabla
     function mostrarResultados(data) {
+        console.log(data); // Verifica el contenido de la respuesta
+
         tableBody.innerHTML = "";
         if (!data || data.length === 0) {
             tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">No se encontraron resultados</td></tr>`;
         } else {
-            data.forEach(item => {
-                tableBody.innerHTML += `
-                    <tr>
-                        <td>${item.numero}</td>
-                        <td>${item.tamanioCorteAncho} x ${item.tamanioCorteLargo}</td>
-                        <td>${item.ancho} x ${item.largo}${item.alto ? ' x ' + item.alto : ''}</td>
-                        <td>${item.tipo}</td>
-                        <td>${item.descripcion}</td>
-                    </tr>`;
-            });
+            // Solo procesar si data es un arreglo
+            if (Array.isArray(data)) {
+                data.forEach(item => {
+                    tableBody.innerHTML += `
+                        <tr>
+                            <td>${item.numero}</td>
+                            <td>${item.tamanioCorteAncho} x ${item.tamanioCorteLargo}</td>
+                            <td>${item.ancho} x ${item.largo}${item.alto ? ' x ' + item.alto : ''}</td>
+                            <td>${item.tipo}</td>
+                            <td>${item.descripcion}</td>
+                        </tr>`;
+                });
+            } else {
+                console.error("La respuesta no es un arreglo:", data);
+                tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">Error en la respuesta del servidor</td></tr>`;
+            }
         }
         toggleTipoTroquelColumn();
     }
