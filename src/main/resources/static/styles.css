@@ -12,34 +12,58 @@ body {
     padding: 20px;
     background-color: #ffffff;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-
 }
 
 .header {
     display: flex;
-    align-items: center;
     justify-content: space-between;
+    align-items: center;
     position: relative;
+    padding: 20px;
 }
 
 .select-list {
-    padding: 16px 16px;
-    font-size: 16px;
+    padding: 15px 15px;
+    font-size: 18px;
     cursor: pointer;
     background-color: #FF4500;
     color: white;
     border: none;
     border-radius: 4px;
 }
+
+/* Media Query para pantallas pequeñas (móviles) */
+@media screen and (max-width: 480px) {
+    .select-list {
+        padding: 8px 10px; /* Reducir el padding para hacer el botón más pequeño */
+        font-size: 12px; /* Reducir el tamaño de la fuente */
+        width: auto; /* Asegurarse de que no ocupe el ancho completo en móviles */
+    }
+}
+
+
+/* Contenedor para el logo y el botón */
+.header-content {
+    display: flex;
+    justify-content: center; /* Centra el logo */
+    align-items: center;
+    flex-grow: 1;
+}
+
 .logo {
-    width: 450px;
+    width: 400px;
     height: auto;
     display: block;
     margin-left: auto;
     margin-right: auto;
-    margin-bottom: 20px;
 }
 
+/* Media Query para pantallas pequeñas (móviles) */
+@media screen and (max-width: 480px) {
+    .logo {
+        width: 300px;  /* Ajusta el tamaño del logo para que sea más grande en móviles */
+    }
+}
 
 h1 {
     color: #333;
@@ -121,6 +145,14 @@ td {
     text-align: center;
     color: white;
 }
+/* Media query para pantallas pequeñas */
+@media screen and (max-width: 480px) {
+    .input-field {
+        width: 30px;  /* Reducir aún más el tamaño en pantallas pequeñas */
+        padding: 3px;  /* Reducir el relleno */
+        font-size: 12px;  /* Ajustar el tamaño del texto */
+    }
+}
 
 /* Estilos de etiquetas y botones */
 label, button {
@@ -132,6 +164,7 @@ label, button {
     width: 120px; /* Ajusta el valor según lo que necesites */
     padding: 5px; /* Ajusta el espacio interno */
     font-weight: bold; /* Si quieres que el texto sea en negrita */
+    margin-bottom: 9px;
 }
 
 /* Media Queries para mejorar la visualización en dispositivos más pequeños */
@@ -151,6 +184,16 @@ label, button {
 
     .table-container {
         padding: 0 10px;
+    }
+
+    /* Añadir margen entre el logo y el select en pantallas pequeñas */
+    .header {
+        flex-direction: column; /* Cambiar la dirección para que logo y select estén en columna */
+        align-items: center; /* Alinear los elementos al centro */
+    }
+
+    .select-list {
+        margin-top: 10px; /* Añadir margen superior */
     }
 }
 
@@ -177,5 +220,14 @@ label, button {
 
     th, td {
         padding: 8px;
+    }
+
+    /* Añadir más espacio entre el logo y el select */
+    .header {
+        padding-top: 20px;
+    }
+
+    .select-list {
+        margin-top: 10px; /* Ajuste del margen entre el logo y el select */
     }
 }

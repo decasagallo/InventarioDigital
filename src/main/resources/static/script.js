@@ -1,6 +1,8 @@
-const API_BASE_URL = window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost"
+/*const API_BASE_URL = window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost"
     ? "http://127.0.0.1:8080" // Modo local
     : "https://inventariodigital.onrender.com/"; // Modo producción en Render
+*/
+const API_BASE_URL = "https://inventariodigital.onrender.com/"; // Siempre se conecta a Render
 
 document.addEventListener("DOMContentLoaded", function () {
     // Elementos del DOM

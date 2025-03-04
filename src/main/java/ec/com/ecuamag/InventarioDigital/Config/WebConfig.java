@@ -11,7 +11,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**") // Permite todas las rutas de tu API
-                .allowedOrigins("https://inventariodigital.onrender.com","http://localhost:8080") // Agrega tu dominio de frontend
+                .allowedOrigins("https://inventariodigital.onrender.com") // Agrega tu dominio de frontend
                 .allowedMethods("GET", "POST", "PUT", "DELETE") // Métodos HTTP permitidos
                 .allowedHeaders("Authorization", "Content-Type"); // Encabezados permitidos // Permite el uso de cookies y credenciales
     }
