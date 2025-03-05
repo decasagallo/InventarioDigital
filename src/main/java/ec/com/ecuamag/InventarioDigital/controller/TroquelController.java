@@ -72,5 +72,10 @@ public class TroquelController {
     private BigDecimal parseBigDecimal(String value) {
         return (value == null || value.isEmpty()) ? null : new BigDecimal(value.trim());
     }
+
+    @GetMapping("/buscar")
+    public List<Troquel> buscarTroqueles(@RequestParam String descripcion) {
+        return troquelService.buscarPorDescripcion(descripcion);
+    }
 }
 

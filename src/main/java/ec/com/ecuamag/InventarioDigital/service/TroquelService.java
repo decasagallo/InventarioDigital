@@ -28,4 +28,10 @@ public class TroquelService {
     public List<Troquel> getTodosLosTroqueles() {
         return troquelRepository.findAll(Sort.by("numero").ascending());
     }
+
+    public List<Troquel> buscarPorDescripcion(String descripcion) {
+        return troquelRepository.findByDescripcionContainingIgnoreCase(descripcion);
+    }
+
+
 }

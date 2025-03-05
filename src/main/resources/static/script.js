@@ -18,8 +18,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const troquelesSection = document.getElementById("troquelesSection");
     const placasSection = document.getElementById("placasSection");
     const clisesSection = document.getElementById("clisesSection");
+    const descripcionInput = document.getElementById("descripcion");
 
-    // Mostrar u ocultar filtros de sobres según el tipo seleccionado
     function toggleFilters() {
         if (tipoTroquelSelect.value === "SOBRE") {
             tipoSobreContainer.classList.remove("hidden");
@@ -35,7 +35,6 @@ document.addEventListener("DOMContentLoaded", function () {
         toggleTipoTroquelColumn();
     }
 
-    // Controla la visibilidad del filtro de orientación
     function updateOrientacionVisibility() {
         const tipoSobre = tipoSobreSelect.value;
         if (tipoSobre === "RECTANGULAR" || tipoSobre === "MEDIO_SOBRE") {
@@ -45,7 +44,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // Mostrar u ocultar la columna "Tipo de Troquel"
     function toggleTipoTroquelColumn() {
         const inventario = inventarioSelect.value;
         const tipoTroquel = tipoTroquelSelect.value;
@@ -64,137 +62,84 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // Cambiar la visibilidad de las secciones según la selección del listado
     function toggleSectionVisibility() {
         const selectedOption = listaSelector.value;
-        if (selectedOption === "TROQUELES") {
-            troquelesSection.classList.remove("hidden");
-            placasSection.classList.add("hidden");
-            clisesSection.classList.add("hidden");
-        } else if (selectedOption === "PLACAS") {
-            troquelesSection.classList.add("hidden");
-            placasSection.classList.remove("hidden");
-            clisesSection.classList.add("hidden");
-        } else if (selectedOption === "CLISES") {
-            troquelesSection.classList.add("hidden");
-            placasSection.classList.add("hidden");
-            clisesSection.classList.remove("hidden");
-        }
+        troquelesSection.classList.toggle("hidden", selectedOption !== "TROQUELES");
+        placasSection.classList.toggle("hidden", selectedOption !== "PLACAS");
+        clisesSection.classList.toggle("hidden", selectedOption !== "CLISES");
     }
 
-    // Obtener troqueles normales
     function fetchTroqueles() {
         const inventario = inventarioSelect.value;
         const tipo = tipoTroquelSelect.value;
 
         let url = `${API_BASE_URL}/api/troqueles/filtrar/inventario?inventario=${inventario}`;
-
         if (tipo !== "TODOS") {
             url = `${API_BASE_URL}/api/troqueles/filtrar/inventario-y-tipo?inventario=${inventario}&tipo=${tipo}`;
         }
 
-        console.log("URL troqueles:", url); // Verifica la URL
-
         fetch(url)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`Error en la solicitud: ${response.statusText}`);
-                }
-                return response.json();
-            })
+            .then(response => response.ok ? response.json() : Promise.reject(response.statusText))
             .then(data => mostrarResultados(data))
-            .catch(error => {
-                console.error("Error al obtener troqueles:", error);
-                tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">Error en la solicitud: ${error.message}</td></tr>`;
-            });
+            .catch(error => mostrarError(error));
     }
 
-    // Obtener sobres con sus filtros específicos
     function fetchSobres() {
-        const inventario = inventarioSelect.value;
-        const tipoSobre = tipoSobreSelect.value;
-        const orientacion = document.getElementById("orientacion").value;
-        const tipoSolapa = tipoSolapaSelect.value;
-        const ancho = document.getElementById("ancho").value;
-        const largo = document.getElementById("largo").value;
+        const params = new URLSearchParams({
+            inventario: inventarioSelect.value,
+            tipoSobre: tipoSobreSelect.value,
+            orientacion: document.getElementById("orientacion").value,
+            tipoSolapa: tipoSolapaSelect.value,
+            ancho: document.getElementById("ancho").value,
+            largo: document.getElementById("largo").value
+        });
 
-        let url = `${API_BASE_URL}/api/sobres/filtrar?inventario=${inventario}`;
-        if (tipoSobre) url += `&tipoSobre=${tipoSobre}`;
-        if (orientacion) url += `&orientacion=${orientacion}`;
-        if (tipoSolapa) url += `&tipoSolapa=${tipoSolapa}`;
-        if (ancho) url += `&ancho=${ancho}`;
-        if (largo) url += `&largo=${largo}`;
-
-        console.log("URL sobres:", url); // Verifica la URL
-
-        fetch(url)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`Error en la solicitud: ${response.statusText}`);
-                }
-                return response.json();
-            })
+        fetch(`${API_BASE_URL}/api/sobres/filtrar?${params}`)
+            .then(response => response.ok ? response.json() : Promise.reject(response.statusText))
             .then(data => mostrarResultados(data))
-            .catch(error => {
-                console.error("Error en sobres:", error);
-                tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">Error en la solicitud: ${error.message}</td></tr>`;
-            });
+            .catch(error => mostrarError(error));
     }
 
-    // Mostrar resultados en la tabla
     function mostrarResultados(data) {
-        console.log(data); // Verifica el contenido de la respuesta
-
         tableBody.innerHTML = "";
         if (!data || data.length === 0) {
             tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">No se encontraron resultados</td></tr>`;
-        } else {
-            // Solo procesar si data es un arreglo
-            if (Array.isArray(data)) {
-                data.forEach(item => {
-                    tableBody.innerHTML += `
-                        <tr>
-                            <td>${item.numero}</td>
-                            <td>${item.tamanioCorteAncho} x ${item.tamanioCorteLargo}</td>
-                            <td>${item.ancho} x ${item.largo}${item.alto ? ' x ' + item.alto : ''}</td>
-                            <td>${item.tipo}</td>
-                            <td>${item.descripcion}</td>
-                        </tr>`;
-                });
-            } else {
-                console.error("La respuesta no es un arreglo:", data);
-                tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">Error en la respuesta del servidor</td></tr>`;
-            }
+            return;
         }
+        data.forEach(item => {
+            tableBody.innerHTML += `
+                <tr>
+                    <td>${item.numero}</td>
+                    <td>${item.tamanioCorteAncho} x ${item.tamanioCorteLargo}</td>
+                    <td>${item.ancho} x ${item.largo}${item.alto ? ' x ' + item.alto : ''}</td>
+                    <td>${item.tipo}</td>
+                    <td>${item.descripcion}</td>
+                </tr>`;
+        });
         toggleTipoTroquelColumn();
     }
 
-    // Evento principal para determinar qué función llamar
-    function fetchData() {
-        if (tipoTroquelSelect.value === "SOBRE") {
-            fetchSobres();
-        } else {
-            fetchTroqueles();
-        }
+    function mostrarError(error) {
+        tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">Error en la solicitud: ${error}</td></tr>`;
     }
 
-    // Event Listeners
-    inventarioSelect.addEventListener("change", fetchData);
-    tipoTroquelSelect.addEventListener("change", function () {
-        toggleFilters();
-        fetchData();
-    });
-    tipoSobreSelect.addEventListener("change", function () {
-        updateOrientacionVisibility();
-        fetchData();
-    });
-    tipoSolapaSelect.addEventListener("change", fetchData);
-    document.getElementById("orientacion").addEventListener("change", fetchData);
-    document.getElementById("ancho").addEventListener("input", fetchData);
-    document.getElementById("largo").addEventListener("input", fetchData);
-    listaSelector.addEventListener("change", toggleSectionVisibility);
+    function fetchData() {
+        tipoTroquelSelect.value === "SOBRE" ? fetchSobres() : fetchTroqueles();
+    }
 
-    // Cargar datos al inicio
+    descripcionInput.addEventListener("input", function () {
+        const filtro = descripcionInput.value.trim().toLowerCase();
+        document.querySelectorAll("#troqueles-table tbody tr").forEach(fila => {
+            const descripcion = fila.cells[4].textContent.toLowerCase();
+            fila.style.display = descripcion.includes(filtro) ? "" : "none";
+        });
+    });
+
+    inventarioSelect.addEventListener("change", fetchData);
+    tipoTroquelSelect.addEventListener("change", () => { toggleFilters(); fetchData(); });
+    tipoSobreSelect.addEventListener("change", () => { updateOrientacionVisibility(); fetchData(); });
+    tipoSolapaSelect.addEventListener("change", fetchData);
+    listaSelector.addEventListener("change", toggleSectionVisibility);
     fetchData();
     toggleSectionVisibility();
 });

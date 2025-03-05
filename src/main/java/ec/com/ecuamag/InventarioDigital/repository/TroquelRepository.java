@@ -12,4 +12,8 @@ import java.util.List;
 public interface TroquelRepository extends JpaRepository<Troquel, Long> {
     List<Troquel> findByInventario(Inventario inventario, Sort sort);
     List<Troquel> findByInventarioAndTipo(Inventario inventario, TipoTroquel tipo, Sort sort);
+
+    // Buscar troqueles que contengan la palabra clave en la descripción (sin importar mayúsculas/minúsculas)
+    List<Troquel> findByDescripcionContainingIgnoreCase(String descripcion);
+
 }
