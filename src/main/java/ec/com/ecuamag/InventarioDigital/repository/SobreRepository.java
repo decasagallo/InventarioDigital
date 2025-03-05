@@ -15,6 +15,7 @@ public interface SobreRepository extends JpaRepository<Sobre, Long> {
 
     @Query("SELECT s FROM Sobre s " +
             "WHERE (:tipoSobre IS NULL OR s.tipoSobre = :tipoSobre) " +  // 👈 Ahora es opcional            "AND (:orientacion IS NULL OR s.orientacion = :orientacion) " +
+            "AND (:orientacion IS NULL OR s.orientacion = :orientacion) " +
             "AND (:tipoSolapa IS NULL OR s.tipoSolapa = :tipoSolapa) " +
             "AND (:ancho IS NULL OR s.ancho = :ancho) " +
             "AND (:largo IS NULL OR s.largo = :largo) " +
