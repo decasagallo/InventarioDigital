@@ -74,6 +74,17 @@
                 </select>
             </div>
 
+            <!-- Filtros de Carpeta -->
+            <div class="hidden" id="tipoCarpeta-container">
+                <label for="tipoCarpeta">Tipo de carpeta:</label>
+                <select id="tipoCarpeta">
+                    <option value="">Todos</option>
+                    <option value="CON_BOLSILLO">Con Bolsillo</option>
+                    <option value="SIN_BOLSILLO">Sin Bolsillo</option>
+                </select>
+            </div>
+
+
             <div class="hidden" id="tipoSolapa-container">
                 <label for="tipoSolapa">Tipo de solapa:</label>
                 <select id="tipoSolapa">
@@ -94,6 +105,7 @@
                 <input type="text" id="largo" placeholder="Cm" class="input-field">
             </div>
         </div>
+
 
         <div class="table-container">
             <table id="troqueles-table">
@@ -127,6 +139,7 @@
             </table>
         </div>
     </div>
+
 
     <!-- Filtros y tabla para Clises -->
     <div id="clisesSection" class="section hidden">

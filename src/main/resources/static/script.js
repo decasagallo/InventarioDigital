@@ -19,6 +19,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const placasSection = document.getElementById("placasSection");
     const clisesSection = document.getElementById("clisesSection");
     const descripcionInput = document.getElementById("descripcion");
+    const tipoCarpetaContainer = document.getElementById("tipoCarpeta-container");
+    const tipoCarpetaSelect = document.getElementById("tipoCarpeta");
+
 
     // Mostrar u ocultar filtros de sobres según el tipo seleccionado
     function toggleFilters() {
@@ -35,6 +38,17 @@ document.addEventListener("DOMContentLoaded", function () {
         }
         toggleTipoTroquelColumn();
     }
+
+
+    // Mostrar u ocultar filtros de carpetas
+    function toggleFiltersCarpeta() {
+        if (tipoTroquelSelect.value === "CARPETA") {
+            tipoCarpetaContainer.classList.remove("hidden");
+        } else {
+            tipoCarpetaContainer.classList.add("hidden");
+        }
+    }
+
     // Controla la visibilidad del filtro de orientación
     function updateOrientacionVisibility() {
         const tipoSobre = tipoSobreSelect.value;
@@ -43,6 +57,7 @@ document.addEventListener("DOMContentLoaded", function () {
         } else {
             orientacionContainer.classList.add("hidden");
         }
+        toggleTipoTroquelColumn();
     }
 
 // Mostrar u ocultar la columna "Tipo de Troquel"
@@ -63,6 +78,8 @@ document.addEventListener("DOMContentLoaded", function () {
             document.querySelectorAll("#troqueles-table td:nth-child(4)").forEach(td => td.style.display = "none");
         }
     }
+
+
 // Cambiar la visibilidad de las secciones según la selección del listado
     function toggleSectionVisibility() {
         const selectedOption = listaSelector.value;
@@ -109,6 +126,30 @@ document.addEventListener("DOMContentLoaded", function () {
             .then(data => mostrarResultados(data))
             .catch(error => console.error("Error en sobres:", error));
     }
+
+    // Obtener Carpetas con sus filtros específicos
+    function fetchCarpetas() {
+        const inventario = inventarioSelect.value;
+        const tipoCarpeta = tipoCarpetaSelect.value;
+        const ancho = document.getElementById("ancho").value;
+        const largo = document.getElementById("largo").value;
+
+        let url = `${API_BASE_URL}/api/carpetas/filtrar?inventario=${inventario}`;
+        if (tipoCarpeta) url += `&tipoCarpeta=${tipoCarpeta}`;
+        if (ancho) url += `&ancho=${ancho}`;
+        if (largo) url += `&largo=${largo}`;
+
+        console.log("URL carpetas:", url);
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => mostrarResultados(data))
+            .catch(error => console.error("Error en Carpetas:", error));
+    }
+
+
+
+
 // Mostrar resultados en la tabla
     function mostrarResultados(data) {
         tableBody.innerHTML = "";
@@ -136,6 +177,12 @@ document.addEventListener("DOMContentLoaded", function () {
     function fetchData() {
         tipoTroquelSelect.value === "SOBRE" ? fetchSobres() : fetchTroqueles();
     }
+
+    function fetchCarpetaData() {
+        tipoTroquelSelect.value === "CARPETA" ? fetchCarpetas() : fetchTroqueles();
+    }
+
+
 
     descripcionInput.addEventListener("input", function () {
         const filtro = descripcionInput.value.trim().toLowerCase();
@@ -170,15 +217,35 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     inventarioSelect.addEventListener("change", fetchData);
+    inventarioSelect.addEventListener("change", fetchCarpetaData);
     tipoTroquelSelect.addEventListener("change", () => { toggleFilters(); fetchData(); });
+    tipoTroquelSelect.addEventListener("change", () => { toggleFiltersCarpeta();fetchCarpetaData();  });
     document.getElementById("orientacion").addEventListener("change", fetchData);
     tipoSobreSelect.addEventListener("change", () => { updateOrientacionVisibility(); fetchData(); });
     document.getElementById("ancho").addEventListener("input", fetchData);
     document.getElementById("largo").addEventListener("input", fetchData);
     tipoSolapaSelect.addEventListener("change", fetchData);
     listaSelector.addEventListener("change", toggleSectionVisibility);
+    tipoCarpetaSelect.addEventListener("change", () => { fetchCarpetaData(); });
+    inventarioSelect.addEventListener("change", () => {
+        // Reiniciar filtros
+        tipoTroquelSelect.value = "TODOS"; // Restablecer el tipo de troquel
+        tipoSobreSelect.value = ""; // Restablecer el tipo de sobre
+        document.getElementById("orientacion").value = ""; // Restablecer la orientación
+        tipoSolapaSelect.value = ""; // Restablecer el tipo de solapa
+        document.getElementById("ancho").value = ""; // Limpiar el ancho
+        document.getElementById("largo").value = ""; // Limpiar el largo
+        tipoCarpetaSelect.value = ""; // Restablecer el tipo de carpeta
+
+        toggleFilters(); // Actualizar la visibilidad de filtros
+        toggleFiltersCarpeta(); // Actualizar visibilidad de carpetas
+        fetchData(); // Volver a cargar los troqueles sin filtros
+        fetchCarpetaData(); // Volver a cargar carpetas sin filtros
+    });
+
 
     // Cargar datos al inicio
     fetchData();
+    fetchCarpetaData();
     toggleSectionVisibility();
 });

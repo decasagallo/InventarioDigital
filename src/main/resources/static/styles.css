@@ -152,7 +152,12 @@ td {
         padding: 3px;  /* Reducir el relleno */
         font-size: 12px;  /* Ajustar el tamaño del texto */
     }
+
+    .input-field::placeholder {
+        color: white;  /* Cambiar el color del texto del placeholder a blanco */
+    }
 }
+
 
 /* Estilos de etiquetas y botones */
 label, button {
@@ -160,12 +165,17 @@ label, button {
 }
 
 /* Estilo para selects específicos */
-#orientacion, #tipoSolapa, #tipoSobre {
+#orientacion, #tipoSolapa, #tipoSobre, #descripcion {
     width: 120px; /* Ajusta el valor según lo que necesites */
     padding: 5px; /* Ajusta el espacio interno */
     font-weight: bold; /* Si quieres que el texto sea en negrita */
     margin-bottom: 9px;
 }
+#descripcion, ::placeholder {
+
+    font-size: 11px;
+}
+
 
 /* Media Queries para mejorar la visualización en dispositivos más pequeños */
 @media screen and (max-width: 768px) {
