@@ -1,6 +1,7 @@
 package ec.com.ecuamag.InventarioDigital;
 
-import ec.com.ecuamag.InventarioDigital.service.CsvImportService;
+import ec.com.ecuamag.InventarioDigital.service.serviceClise.CsvImportCliseService;
+import ec.com.ecuamag.InventarioDigital.service.serviceTroquel.CsvImportTroquelService;
 import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -18,11 +19,22 @@ public class InventarioDigitalApplication {
 		SpringApplication.run(InventarioDigitalApplication.class, args);
 	}
 
-	/*@Bean
-	CommandLineRunner run(CsvImportService csvImportService) {
+	@Bean
+	CommandLineRunner importarTroqueles(CsvImportTroquelService csvImportTroquelService) {
 		return args -> {
-			csvImportService.importarDatosDesdeCsv(); // Eliminado el parámetro filePath
+			csvImportTroquelService.importarDatosDesdeCsv(); // Eliminado el parámetro filePath
 			System.out.println("📥 Importación de datos desde CSV completada.");
 		};
-	}*/
+	}
+
+
+	@Bean
+	CommandLineRunner importarClises(CsvImportTroquelService csvImportTroquelService,
+						  CsvImportCliseService csvImportCliseService) {
+		return args -> {
+			csvImportTroquelService.importarDatosDesdeCsv();
+			csvImportCliseService.importarDatosDesdeCsv(); // 🆕 se ejecuta al iniciar
+			System.out.println("📥 Importación de datos completada.");
+		};
+	}
 }

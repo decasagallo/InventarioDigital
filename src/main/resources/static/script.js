@@ -1,9 +1,11 @@
+// Determina la URL base de la API dependiendo del entorno (local o producción)
 const API_BASE_URL = window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost"
-    ? "http://127.0.0.1:8080" // Modo local
-    : "https://inventariodigital.onrender.com"; // Modo producción en Render
+    ? "http://127.0.0.1:8080"
+    : "https://inventariodigital.onrender.com";
 
+// Espera que el DOM esté completamente cargado
 document.addEventListener("DOMContentLoaded", function () {
-    // Elementos del DOM
+    // Referencias a elementos del DOM
     const tipoTroquelSelect = document.getElementById("tipoTroquel");
     const inventarioSelect = document.getElementById("inventario");
     const tipoSobreSelect = document.getElementById("tipoSobre");
@@ -22,45 +24,58 @@ document.addEventListener("DOMContentLoaded", function () {
     const tipoCarpetaContainer = document.getElementById("tipoCarpeta-container");
     const tipoCarpetaSelect = document.getElementById("tipoCarpeta");
 
-
-    // Mostrar u ocultar filtros de sobres según el tipo seleccionado
+    // Muestra/oculta filtros según el tipo de troquel seleccionado
     function toggleFilters() {
-        if (tipoTroquelSelect.value === "SOBRE") {
+        const tipo = tipoTroquelSelect.value;
+
+        // Siempre ocultamos todo al inicio
+        tipoSobreContainer.classList.add("hidden");
+        orientacionContainer.classList.add("hidden");
+        tipoSolapaContainer.classList.add("hidden");
+        tamaniosContainer.classList.add("hidden");
+        document.getElementById("alto-container").classList.add("hidden");
+        document.getElementById("tipoForma-container").classList.add("hidden");
+
+        // Ahora según el tipo mostramos lo necesario
+        if (tipo === "SOBRE") {
             tipoSobreContainer.classList.remove("hidden");
             tipoSolapaContainer.classList.remove("hidden");
             tamaniosContainer.classList.remove("hidden");
-            updateOrientacionVisibility();
-        } else {
-            tipoSobreContainer.classList.add("hidden");
-            orientacionContainer.classList.add("hidden");
-            tipoSolapaContainer.classList.add("hidden");
-            tamaniosContainer.classList.add("hidden");
+
+            updateOrientacionVisibility(); // Ver si se muestra orientación
+        } else if (tipo === "CARPETA" || tipo === "FUNDA" || tipo === "BOLSA"|| tipo === "CAJA") {
+            tamaniosContainer.classList.remove("hidden");
+
+            if (tipo === "BOLSA" || tipo === "CAJA") {
+                tamaniosContainer.classList.remove("hidden");
+                document.getElementById("alto-container").classList.remove("hidden");
+            }
+        }else if (tipo === "FORMA") {
+            tamaniosContainer.classList.remove("hidden");
+            document.getElementById("tipoForma-container").classList.remove("hidden"); // Mostrar tipoForma
         }
+
         toggleTipoTroquelColumn();
     }
 
 
-    // Mostrar u ocultar filtros de carpetas
-    function toggleFiltersCarpeta() {
-        if (tipoTroquelSelect.value === "CARPETA") {
-            tipoCarpetaContainer.classList.remove("hidden");
-        } else {
-            tipoCarpetaContainer.classList.add("hidden");
-        }
-    }
 
-    // Controla la visibilidad del filtro de orientación
+    // Controla visibilidad del filtro de orientación basado en tipo de sobre
     function updateOrientacionVisibility() {
         const tipoSobre = tipoSobreSelect.value;
+        const orientacionInput = document.getElementById("orientacion");
+
         if (tipoSobre === "RECTANGULAR" || tipoSobre === "MEDIO_SOBRE") {
             orientacionContainer.classList.remove("hidden");
         } else {
             orientacionContainer.classList.add("hidden");
+            orientacionInput.value = ""; // Limpiar valor de orientación
         }
+
         toggleTipoTroquelColumn();
     }
 
-// Mostrar u ocultar la columna "Tipo de Troquel"
+    // Muestra u oculta la columna de tipo de troquel en la tabla
     function toggleTipoTroquelColumn() {
         const inventario = inventarioSelect.value;
         const tipoTroquel = tipoTroquelSelect.value;
@@ -79,15 +94,16 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-
-// Cambiar la visibilidad de las secciones según la selección del listado
+    // Muestra solo la sección seleccionada: Troqueles, Placas o Clises
     function toggleSectionVisibility() {
         const selectedOption = listaSelector.value;
         troquelesSection.classList.toggle("hidden", selectedOption !== "TROQUELES");
         placasSection.classList.toggle("hidden", selectedOption !== "PLACAS");
         clisesSection.classList.toggle("hidden", selectedOption !== "CLISES");
     }
-    // Obtener troqueles normales
+
+
+    // Fetch troqueles normales
     function fetchTroqueles() {
         const inventario = inventarioSelect.value;
         const tipo = tipoTroquelSelect.value;
@@ -103,7 +119,7 @@ document.addEventListener("DOMContentLoaded", function () {
             .catch(error => mostrarError(error));
     }
 
-    // Obtener sobres con sus filtros específicos
+    // Fetch sobres con filtros
     function fetchSobres() {
         const inventario = inventarioSelect.value;
         const tipoSobre = tipoSobreSelect.value;
@@ -123,19 +139,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
         fetch(url)
             .then(response => response.json())
-            .then(data => mostrarResultados(data))
+            .then(data => mostrarResultados(data, "SOBRE"))
             .catch(error => console.error("Error en sobres:", error));
     }
 
-    // Obtener Carpetas con sus filtros específicos
+    // Fetch carpetas con filtros
     function fetchCarpetas() {
         const inventario = inventarioSelect.value;
-        const tipoCarpeta = tipoCarpetaSelect.value;
         const ancho = document.getElementById("ancho").value;
         const largo = document.getElementById("largo").value;
 
         let url = `${API_BASE_URL}/api/carpetas/filtrar?inventario=${inventario}`;
-        if (tipoCarpeta) url += `&tipoCarpeta=${tipoCarpeta}`;
         if (ancho) url += `&ancho=${ancho}`;
         if (largo) url += `&largo=${largo}`;
 
@@ -143,18 +157,101 @@ document.addEventListener("DOMContentLoaded", function () {
 
         fetch(url)
             .then(response => response.json())
-            .then(data => mostrarResultados(data))
+            .then(data => mostrarResultados(data, "CARPETA"))
             .catch(error => console.error("Error en Carpetas:", error));
+    }
+
+    // Fetch fundas con filtros
+    function fetchFundas() {
+        const inventario = inventarioSelect.value;
+        const ancho = document.getElementById("ancho").value;
+        const largo = document.getElementById("largo").value;
+
+        let url = `${API_BASE_URL}/api/fundas/filtrar?inventario=${inventario}`;
+        if (ancho) url += `&ancho=${ancho}`;
+        if (largo) url += `&largo=${largo}`;
+
+        console.log("URL fundas:", url);
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => mostrarResultados(data, "FUNDA"))
+            .catch(error => console.error("Error en Fundas:", error));
+    }
+
+    // Fetch bolsas con filtros
+    function fetchBolsas() {
+        const inventario = inventarioSelect.value;
+        const ancho = document.getElementById("ancho").value;
+        const largo = document.getElementById("largo").value;
+        const alto = document.getElementById("alto") ? document.getElementById("alto").value : "";
+
+        let url = `${API_BASE_URL}/api/bolsas/filtrar?`;
+
+        const params = new URLSearchParams();
+
+        if (inventario) params.append("inventario", inventario);
+        if (ancho) params.append("ancho", ancho);
+        if (largo) params.append("largo", largo);
+        if (alto) params.append("alto", alto);
+
+        url += params.toString();
+
+        console.log("URL bolsas:", url);
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => mostrarResultados(data, "BOLSA"))
+            .catch(error => console.error("Error en Bolsas:", error));
+    }
+    // Fetch cajas con filtros
+    function fetchCajas() {
+        const inventario = inventarioSelect.value;
+        const ancho = document.getElementById("ancho").value;
+        const largo = document.getElementById("largo").value;
+        const alto = document.getElementById("alto") ? document.getElementById("alto").value : "";
+
+        let url = `${API_BASE_URL}/api/cajas/filtrar?inventario=${inventario}`;
+        if (ancho) url += `&ancho=${ancho}`;
+        if (largo) url += `&largo=${largo}`;
+        if (alto) url += `&alto=${alto}`;
+        console.log("URL cajas:", url);
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => mostrarResultados(data, "CAJA"))
+            .catch(error => console.error("Error en Cajas:", error));
+    }
+
+    function fetchFormas() {
+        const tipoForma = document.getElementById("tipoForma").value;
+        const ancho = document.getElementById("ancho").value;
+        const largo = document.getElementById("largo").value;
+
+        let url = `${API_BASE_URL}/api/formas/filtrar?`;
+        const params = new URLSearchParams();
+
+        if (tipoForma) params.append("tipoForma", tipoForma);
+        if (ancho) params.append("ancho", ancho);
+        if (largo) params.append("largo", largo);
+
+        url += params.toString();
+        console.log("URL formas:", url);
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => mostrarResultados(data, "FORMA"))
+            .catch(error => console.error("Error en Formas:", error));
     }
 
 
 
-
-// Mostrar resultados en la tabla
-    function mostrarResultados(data) {
+    // Muestra resultados en la tabla
+    function mostrarResultados(data, tipo) {
         tableBody.innerHTML = "";
         if (!data || data.length === 0) {
-            tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">No se encontraron sobres con esas caracteristicas</td></tr>`;
+            let mensaje = `No se encontraron ${tipo.toLowerCase()}s con esas características`;
+            tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">${mensaje}</td></tr>`;
             return;
         }
         data.forEach(item => {
@@ -170,82 +267,211 @@ document.addEventListener("DOMContentLoaded", function () {
         toggleTipoTroquelColumn();
     }
 
+    // Muestra mensaje de error si falla la solicitud
     function mostrarError(error) {
         tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">Error en la solicitud: ${error}</td></tr>`;
     }
 
+    // Dispatcher para decidir si cargar sobres o troqueles
     function fetchData() {
         tipoTroquelSelect.value === "SOBRE" ? fetchSobres() : fetchTroqueles();
     }
 
+    // Dispatcher para carpetas
     function fetchCarpetaData() {
         tipoTroquelSelect.value === "CARPETA" ? fetchCarpetas() : fetchTroqueles();
     }
 
+    // Dispatcher para fundas
+    function fetchFundaData() {
+        tipoTroquelSelect.value === "CARPETA" ? fetchFundas() : fetchTroqueles();
+    }
+    // Dispatcher para cajas
+    function fetchCajasData() {
+        tipoTroquelSelect.value === "CAJA" ? fetchCajas() : fetchTroqueles();
+    }
+    // Dispatcher para formas
+    function fetchFormaData() {
+        tipoTroquelSelect.value === "FORMA" ? fetchFormas() : fetchTroqueles();
+    }
 
-
+    // Filtro por descripción desde input
     descripcionInput.addEventListener("input", function () {
         const filtro = descripcionInput.value.trim().toLowerCase();
         const filas = document.querySelectorAll("#troqueles-table tbody tr");
+        const mensajeNoResultados = document.getElementById("mensaje-no-resultados");
+        if (mensajeNoResultados) mensajeNoResultados.remove();
         let encontrado = false;
 
         filas.forEach(fila => {
             const descripcion = fila.cells[4].textContent.toLowerCase();
             if (descripcion.includes(filtro)) {
-                fila.style.display = "";  // Mostrar la fila
+                fila.style.display = "";
                 encontrado = true;
             } else {
-                fila.style.display = "none";  // Ocultar la fila
+                fila.style.display = "none";
             }
         });
 
-        // Si no se encontraron resultados, mostrar el mensaje
-        const mensajeNoResultados = document.getElementById("mensaje-no-resultados");
         if (!encontrado) {
             if (!mensajeNoResultados) {
                 const mensaje = document.createElement("tr");
                 mensaje.id = "mensaje-no-resultados";
                 mensaje.innerHTML = `<td colspan="5" style="text-align:center; color:red;">No se encontraron coincidencias</td>`;
-                document.querySelector("#troqueles-table tbody").appendChild(mensaje);
+                tableBody.appendChild(mensaje);
             }
-        } else {
-            // Si se encuentran resultados, eliminar el mensaje si existe
-            if (mensajeNoResultados) {
-                mensajeNoResultados.remove();
-            }
+        } else if (mensajeNoResultados) {
+            mensajeNoResultados.remove();
         }
     });
 
+    // Eventos principales de filtro y fetch
     inventarioSelect.addEventListener("change", fetchData);
     inventarioSelect.addEventListener("change", fetchCarpetaData);
-    tipoTroquelSelect.addEventListener("change", () => { toggleFilters(); fetchData(); });
-    tipoTroquelSelect.addEventListener("change", () => { toggleFiltersCarpeta();fetchCarpetaData();  });
+    tipoTroquelSelect.addEventListener("change", () => {
+        toggleFilters();
+        fetchData();
+        fetchCarpetaData();
+        fetchFundaData();
+        fetchCajas();
+        fetchCajasData();
+    });
     document.getElementById("orientacion").addEventListener("change", fetchData);
     tipoSobreSelect.addEventListener("change", () => { updateOrientacionVisibility(); fetchData(); });
-    document.getElementById("ancho").addEventListener("input", fetchData);
-    document.getElementById("largo").addEventListener("input", fetchData);
-    tipoSolapaSelect.addEventListener("change", fetchData);
-    listaSelector.addEventListener("change", toggleSectionVisibility);
-    tipoCarpetaSelect.addEventListener("change", () => { fetchCarpetaData(); });
-    inventarioSelect.addEventListener("change", () => {
-        // Reiniciar filtros
-        tipoTroquelSelect.value = "TODOS"; // Restablecer el tipo de troquel
-        tipoSobreSelect.value = ""; // Restablecer el tipo de sobre
-        document.getElementById("orientacion").value = ""; // Restablecer la orientación
-        tipoSolapaSelect.value = ""; // Restablecer el tipo de solapa
-        document.getElementById("ancho").value = ""; // Limpiar el ancho
-        document.getElementById("largo").value = ""; // Limpiar el largo
-        tipoCarpetaSelect.value = ""; // Restablecer el tipo de carpeta
+    document.getElementById("alto").addEventListener("input", () => {
+        if (tipoTroquelSelect.value === "BOLSA") {
+            fetchBolsas();
+        }
+    });
+    document.getElementById("alto").addEventListener("input", () => {
+        if (tipoTroquelSelect.value === "CAJA") {
+            fetchCajas();
+        }
+    });
 
-        toggleFilters(); // Actualizar la visibilidad de filtros
-        toggleFiltersCarpeta(); // Actualizar visibilidad de carpetas
-        fetchData(); // Volver a cargar los troqueles sin filtros
-        fetchCarpetaData(); // Volver a cargar carpetas sin filtros
+    document.getElementById("ancho").addEventListener("input", () => {
+        const tipo = tipoTroquelSelect.value;
+        if (tipo === "SOBRE") {
+            fetchSobres();
+        } else if (tipo === "CARPETA") {
+            fetchCarpetas();
+        } else if (tipo === "FUNDA") {
+            fetchFundas();
+        } else if (tipo === "BOLSA") {
+            fetchBolsas();
+        }else if (tipo === "CAJA") {
+            fetchCajas();
+        }else if (tipo === "FORMA") {
+            fetchFormas();
+        }
+    });
+
+    document.getElementById("largo").addEventListener("input", () => {
+        const tipo = tipoTroquelSelect.value;
+        if (tipo === "SOBRE") {
+            fetchSobres();
+        } else if (tipo === "CARPETA") {
+            fetchCarpetas();
+        } else if (tipo === "FUNDA") {
+            fetchFundas();
+        } else if (tipo === "BOLSA") {
+            fetchBolsas();
+        }else if (tipo === "CAJA") {
+            fetchCajas();
+        }else if (tipo === "FORMA") {
+        fetchFormas();
+        }
     });
 
 
-    // Cargar datos al inicio
+    document.getElementById("alto").addEventListener("input", () => {
+        if (tipoTroquelSelect.value === "BOLSA") {
+            fetchBolsas();
+        } else if (tipo === "CAJA") {
+            fetchCajas();
+        }
+    });
+
+
+
+    document.getElementById("tipoForma").addEventListener("change", () => {
+        if (tipoTroquelSelect.value === "FORMA") {
+            fetchFormas();
+        }
+    });
+
+
+    document.getElementById("alto").value = "";
+    document.getElementById("tipoForma").value = "";
+
+    tipoSolapaSelect.addEventListener("change", fetchData);
+    listaSelector.addEventListener("change", toggleSectionVisibility);
+
+    // Reinicia todos los filtros al cambiar inventario
+    inventarioSelect.addEventListener("change", () => {
+
+        tipoTroquelSelect.value = "TODOS";
+        tipoSobreSelect.value = "";
+        document.getElementById("orientacion").value = "";
+        tipoSolapaSelect.value = "";
+        document.getElementById("ancho").value = "";
+        document.getElementById("largo").value = "";
+        document.getElementById("alto").value = "";
+        tipoCarpetaSelect.value = "";
+        toggleFilters();
+        fetchData();
+        fetchCarpetaData();
+    });
+
+    // Carga inicial de datos
     fetchData();
-    fetchCarpetaData();
     toggleSectionVisibility();
+
+    //                             CLISES
+
+    function fetchClises() {
+        const nombre = descripcionInput.value.trim();
+
+        let url = `${API_BASE_URL}/api/clises/filtrar`;
+        const params = new URLSearchParams();
+
+        if (nombre) params.append("nombre", nombre);
+
+        url += `?${params.toString()}`;
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => mostrarClises(data))
+            .catch(error => console.error("Error al obtener clises:", error));
+    }
+
+    function mostrarClises(data) {
+        const clisesTable = document.querySelector("#clises-table tbody");
+        clisesTable.innerHTML = "";
+
+        if (!data || data.length === 0) {
+            clisesTable.innerHTML = `<tr><td colspan="4" style="text-align:center; color:red;">No se encontraron clises</td></tr>`;
+            return;
+        }
+
+        data.forEach(clise => {
+            clisesTable.innerHTML += `
+            <tr>
+                <td>${clise.letra}</td>
+                <td>${clise.numero}</td>
+                <td>${clise.nombre}</td>
+                <td>${clise.descripcion}</td>
+            </tr>`;
+        });
+    }
+
+    listaSelector.addEventListener("change", () => {
+        toggleSectionVisibility();
+
+        if (listaSelector.value === "CLISES") {
+            fetchClises();
+        }
+    });
+
+
 });

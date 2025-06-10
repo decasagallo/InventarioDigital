@@ -172,7 +172,7 @@ label, button {
     margin-bottom: 9px;
 }
 #descripcion, ::placeholder {
-
+    color: #cccccc;
     font-size: 11px;
 }
 

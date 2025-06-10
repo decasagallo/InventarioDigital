@@ -4,6 +4,8 @@ public enum TipoForma {
     CIRCULO,
     OVALO,
     CUADRADO,
-    RECTANGULO
+    RECTANGULO,
+    FORRO,
+    PARTE
 
 }

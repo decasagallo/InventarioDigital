@@ -34,7 +34,7 @@
             <div>
                 <label for="inventario">Selecciona una lista:</label>
                 <select id="inventario">
-                    <option value="GRANDE">Troqueles Grandes</option>
+                    <option value="GRANDE" selected>Troqueles Grandes</option>
                     <option value="PEQUENO">Troqueles Pequeños</option>
                 </select>
             </div>
@@ -42,12 +42,11 @@
             <div>
                 <label for="tipoTroquel">Tipo de troquel:</label>
                 <select id="tipoTroquel">
-                    <option value="TODOS">Todos</option>
+                    <option value="TODOS" selected>Todos</option>
                     <option value="SOBRE">Sobre</option>
                     <option value="BOLSA">Shopping bag</option>
                     <option value="CAJA">Caja</option>
                     <option value="CARPETA">Carpeta</option>
-                    <option value="PARTE">Parte</option>
                     <option value="FORMA">Forma</option>
                     <option value="FUNDA">Funda</option>
                 </select>
@@ -65,22 +64,27 @@
                 </select>
             </div>
 
+            <div id="tipoForma-container" class="hidden">
+                <label for="tipoForma">Tipo de Forma:</label>
+                <select id="tipoForma">
+                    <option value="">Todos</option>
+                    <option value="CIRCULO">Círculo</option>
+                    <option value="OVALO">Óvalo</option>
+                    <option value="CUADRADO">Cuadrado</option>
+                    <option value="RECTANGULO">Rectángulo</option>
+                    <option value="FORRO">Forro</option>
+                    <option value="PARTE">Parte</option>
+                </select>
+            </div>
+
+
+
             <div class="hidden" id="orientacion-container">
                 <label for="orientacion">Orientación:</label>
                 <select id="orientacion">
                     <option value="">Todos</option>
                     <option value="HORIZONTAL">Horizontal</option>
                     <option value="VERTICAL">Vertical</option>
-                </select>
-            </div>
-
-            <!-- Filtros de Carpeta -->
-            <div class="hidden" id="tipoCarpeta-container">
-                <label for="tipoCarpeta">Tipo de carpeta:</label>
-                <select id="tipoCarpeta">
-                    <option value="">Todos</option>
-                    <option value="CON_BOLSILLO">Con Bolsillo</option>
-                    <option value="SIN_BOLSILLO">Sin Bolsillo</option>
                 </select>
             </div>
 
@@ -101,9 +105,16 @@
             <div class="input-group hidden" id="tamanios-container">
                 <label for="ancho">Ancho:</label>
                 <input type="text" id="ancho" placeholder="Cm" class="input-field">
+
                 <label for="largo">Largo:</label>
                 <input type="text" id="largo" placeholder="Cm" class="input-field">
+
+                <div id="alto-container" class="hidden">
+                    <label for="alto">Alto:</label>
+                    <input type="text" id="alto" placeholder="Cm" class="input-field">
+                </div>
             </div>
+
         </div>
 
 
@@ -147,11 +158,14 @@
             <table id="clises-table">
                 <thead>
                 <tr>
-                    <th>Inventario Clises</th>
+                    <th>Letra</th>
+                    <th>Número</th>
+                    <th>Nombre</th>
+                    <th>Descripción</th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr><td>Inventario Clises</td></tr>
+                <!-- Aquí se insertarán los clises dinámicamente -->
                 </tbody>
             </table>
         </div>
