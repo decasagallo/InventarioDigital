@@ -32,7 +32,6 @@ public class InventarioDigitalApplication {
 	CommandLineRunner importarClises(CsvImportTroquelService csvImportTroquelService,
 						  CsvImportCliseService csvImportCliseService) {
 		return args -> {
-			csvImportTroquelService.importarDatosDesdeCsv();
 			csvImportCliseService.importarDatosDesdeCsv(); // 🆕 se ejecuta al iniciar
 			System.out.println("📥 Importación de datos completada.");
 		};

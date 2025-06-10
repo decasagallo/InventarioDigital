@@ -227,10 +227,12 @@ document.addEventListener("DOMContentLoaded", function () {
         const tipoForma = document.getElementById("tipoForma").value;
         const ancho = document.getElementById("ancho").value;
         const largo = document.getElementById("largo").value;
+        const inventario = inventarioSelect.value; // ← Esto faltaba
 
         let url = `${API_BASE_URL}/api/formas/filtrar?`;
         const params = new URLSearchParams();
 
+        if (inventario) params.append("inventario", inventario); // ← Agrega el filtro de inventario
         if (tipoForma) params.append("tipoForma", tipoForma);
         if (ancho) params.append("ancho", ancho);
         if (largo) params.append("largo", largo);
@@ -243,6 +245,7 @@ document.addEventListener("DOMContentLoaded", function () {
             .then(data => mostrarResultados(data, "FORMA"))
             .catch(error => console.error("Error en Formas:", error));
     }
+
 
 
 
@@ -409,19 +412,29 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Reinicia todos los filtros al cambiar inventario
     inventarioSelect.addEventListener("change", () => {
-
         tipoTroquelSelect.value = "TODOS";
+        tipoTroquelSelect.dispatchEvent(new Event("change"));
+
+        // Limpiar otros filtros
         tipoSobreSelect.value = "";
         document.getElementById("orientacion").value = "";
         tipoSolapaSelect.value = "";
         document.getElementById("ancho").value = "";
         document.getElementById("largo").value = "";
         document.getElementById("alto").value = "";
-        tipoCarpetaSelect.value = "";
-        toggleFilters();
-        fetchData();
-        fetchCarpetaData();
+        document.getElementById("tipoForma").value = "";
+
+        // Ocultar todos los filtros
+        tipoSobreContainer.classList.add("hidden");
+        orientacionContainer.classList.add("hidden");
+        tipoSolapaContainer.classList.add("hidden");
+        tamaniosContainer.classList.add("hidden");
+        document.getElementById("alto-container").classList.add("hidden");
+        document.getElementById("tipoForma-container").classList.add("hidden");
+        tipoCarpetaContainer.classList.add("hidden");
     });
+
+
 
     // Carga inicial de datos
     fetchData();
@@ -445,33 +458,7 @@ document.addEventListener("DOMContentLoaded", function () {
             .catch(error => console.error("Error al obtener clises:", error));
     }
 
-    function mostrarClises(data) {
-        const clisesTable = document.querySelector("#clises-table tbody");
-        clisesTable.innerHTML = "";
 
-        if (!data || data.length === 0) {
-            clisesTable.innerHTML = `<tr><td colspan="4" style="text-align:center; color:red;">No se encontraron clises</td></tr>`;
-            return;
-        }
-
-        data.forEach(clise => {
-            clisesTable.innerHTML += `
-            <tr>
-                <td>${clise.letra}</td>
-                <td>${clise.numero}</td>
-                <td>${clise.nombre}</td>
-                <td>${clise.descripcion}</td>
-            </tr>`;
-        });
-    }
-
-    listaSelector.addEventListener("change", () => {
-        toggleSectionVisibility();
-
-        if (listaSelector.value === "CLISES") {
-            fetchClises();
-        }
-    });
 
 
 });
