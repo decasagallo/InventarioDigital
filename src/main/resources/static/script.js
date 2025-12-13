@@ -43,22 +43,20 @@ document.addEventListener("DOMContentLoaded", function () {
             tamaniosContainer.classList.remove("hidden");
 
             updateOrientacionVisibility(); // Ver si se muestra orientación
-        } else if (tipo === "CARPETA" || tipo === "FUNDA" || tipo === "BOLSA"|| tipo === "CAJA") {
+        } else if (tipo === "CARPETA" || tipo === "FUNDA" || tipo === "BOLSA" || tipo === "CAJA") {
             tamaniosContainer.classList.remove("hidden");
 
             if (tipo === "BOLSA" || tipo === "CAJA") {
                 tamaniosContainer.classList.remove("hidden");
                 document.getElementById("alto-container").classList.remove("hidden");
             }
-        }else if (tipo === "FORMA") {
+        } else if (tipo === "FORMA") {
             tamaniosContainer.classList.remove("hidden");
             document.getElementById("tipoForma-container").classList.remove("hidden"); // Mostrar tipoForma
         }
 
         toggleTipoTroquelColumn();
     }
-
-
 
     // Controla visibilidad del filtro de orientación basado en tipo de sobre
     function updateOrientacionVisibility() {
@@ -97,11 +95,20 @@ document.addEventListener("DOMContentLoaded", function () {
     // Muestra solo la sección seleccionada: Troqueles, Placas o Clises
     function toggleSectionVisibility() {
         const selectedOption = listaSelector.value;
+
         troquelesSection.classList.toggle("hidden", selectedOption !== "TROQUELES");
         placasSection.classList.toggle("hidden", selectedOption !== "PLACAS");
         clisesSection.classList.toggle("hidden", selectedOption !== "CLISES");
-    }
 
+        if (selectedOption === "CLISES") {
+            fetchClises();
+        } else if (selectedOption === "PLACAS") {
+            fetchPlacas();
+        } else {
+            // TROQUELES
+            fetchData();
+        }
+    }
 
     // Fetch troqueles normales
     function fetchTroqueles() {
@@ -204,6 +211,7 @@ document.addEventListener("DOMContentLoaded", function () {
             .then(data => mostrarResultados(data, "BOLSA"))
             .catch(error => console.error("Error en Bolsas:", error));
     }
+
     // Fetch cajas con filtros
     function fetchCajas() {
         const inventario = inventarioSelect.value;
@@ -227,12 +235,12 @@ document.addEventListener("DOMContentLoaded", function () {
         const tipoForma = document.getElementById("tipoForma").value;
         const ancho = document.getElementById("ancho").value;
         const largo = document.getElementById("largo").value;
-        const inventario = inventarioSelect.value; // ← Esto faltaba
+        const inventario = inventarioSelect.value;
 
         let url = `${API_BASE_URL}/api/formas/filtrar?`;
         const params = new URLSearchParams();
 
-        if (inventario) params.append("inventario", inventario); // ← Agrega el filtro de inventario
+        if (inventario) params.append("inventario", inventario);
         if (tipoForma) params.append("tipoForma", tipoForma);
         if (ancho) params.append("ancho", ancho);
         if (largo) params.append("largo", largo);
@@ -246,14 +254,13 @@ document.addEventListener("DOMContentLoaded", function () {
             .catch(error => console.error("Error en Formas:", error));
     }
 
-
-
-
     // Muestra resultados en la tabla
     function mostrarResultados(data, tipo) {
         tableBody.innerHTML = "";
         if (!data || data.length === 0) {
-            let mensaje = `No se encontraron ${tipo.toLowerCase()}s con esas características`;
+            const nombreTipo = (tipo ? tipo.toLowerCase() : "troquel");
+            let mensaje = `No se encontraron ${nombreTipo}s con esas características`;
+
             tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">${mensaje}</td></tr>`;
             return;
         }
@@ -289,17 +296,32 @@ document.addEventListener("DOMContentLoaded", function () {
     function fetchFundaData() {
         tipoTroquelSelect.value === "CARPETA" ? fetchFundas() : fetchTroqueles();
     }
+
     // Dispatcher para cajas
     function fetchCajasData() {
         tipoTroquelSelect.value === "CAJA" ? fetchCajas() : fetchTroqueles();
     }
+
     // Dispatcher para formas
     function fetchFormaData() {
         tipoTroquelSelect.value === "FORMA" ? fetchFormas() : fetchTroqueles();
     }
 
-    // Filtro por descripción desde input
+    // ✅ Filtro por descripción / búsqueda (Troqueles o Clises)
     descripcionInput.addEventListener("input", function () {
+
+        // ✅ Si estás en CLISES, usa el backend para filtrar por nombre
+        if (listaSelector.value === "CLISES") {
+            fetchClises();
+            return;
+        }
+
+        if (listaSelector.value === "PLACAS") {
+            fetchPlacas();
+            return;
+        }
+
+        // 👇 Si NO estás en CLISES, filtra Troqueles como antes
         const filtro = descripcionInput.value.trim().toLowerCase();
         const filas = document.querySelectorAll("#troqueles-table tbody tr");
         const mensajeNoResultados = document.getElementById("mensaje-no-resultados");
@@ -317,12 +339,10 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
         if (!encontrado) {
-            if (!mensajeNoResultados) {
-                const mensaje = document.createElement("tr");
-                mensaje.id = "mensaje-no-resultados";
-                mensaje.innerHTML = `<td colspan="5" style="text-align:center; color:red;">No se encontraron coincidencias</td>`;
-                tableBody.appendChild(mensaje);
-            }
+            const mensaje = document.createElement("tr");
+            mensaje.id = "mensaje-no-resultados";
+            mensaje.innerHTML = `<td colspan="5" style="text-align:center; color:red;">No se encontraron coincidencias</td>`;
+            tableBody.appendChild(mensaje);
         } else if (mensajeNoResultados) {
             mensajeNoResultados.remove();
         }
@@ -341,6 +361,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
     document.getElementById("orientacion").addEventListener("change", fetchData);
     tipoSobreSelect.addEventListener("change", () => { updateOrientacionVisibility(); fetchData(); });
+
     document.getElementById("alto").addEventListener("input", () => {
         if (tipoTroquelSelect.value === "BOLSA") {
             fetchBolsas();
@@ -362,9 +383,9 @@ document.addEventListener("DOMContentLoaded", function () {
             fetchFundas();
         } else if (tipo === "BOLSA") {
             fetchBolsas();
-        }else if (tipo === "CAJA") {
+        } else if (tipo === "CAJA") {
             fetchCajas();
-        }else if (tipo === "FORMA") {
+        } else if (tipo === "FORMA") {
             fetchFormas();
         }
     });
@@ -379,30 +400,18 @@ document.addEventListener("DOMContentLoaded", function () {
             fetchFundas();
         } else if (tipo === "BOLSA") {
             fetchBolsas();
-        }else if (tipo === "CAJA") {
-            fetchCajas();
-        }else if (tipo === "FORMA") {
-        fetchFormas();
-        }
-    });
-
-
-    document.getElementById("alto").addEventListener("input", () => {
-        if (tipoTroquelSelect.value === "BOLSA") {
-            fetchBolsas();
         } else if (tipo === "CAJA") {
             fetchCajas();
+        } else if (tipo === "FORMA") {
+            fetchFormas();
         }
     });
-
-
 
     document.getElementById("tipoForma").addEventListener("change", () => {
         if (tipoTroquelSelect.value === "FORMA") {
             fetchFormas();
         }
     });
-
 
     document.getElementById("alto").value = "";
     document.getElementById("tipoForma").value = "";
@@ -434,23 +443,42 @@ document.addEventListener("DOMContentLoaded", function () {
         tipoCarpetaContainer.classList.add("hidden");
     });
 
-
-
     // Carga inicial de datos
     fetchData();
     toggleSectionVisibility();
 
-    //                             CLISES
+
+                                 // CLISES
+
+
+    function mostrarClises(data) {
+        const tbody = document.querySelector("#clises-table tbody");
+        tbody.innerHTML = "";
+
+        data.forEach(c => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td>${c.nombreCliente}</td>
+                <td>${c.letra}</td>
+                <td>${c.numero}</td>
+                <td>${c.impresion}</td>
+                <td>${c.repujado}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
 
     function fetchClises() {
         const nombre = descripcionInput.value.trim();
 
-        let url = `${API_BASE_URL}/api/clises/filtrar`;
+        let url = `${API_BASE_URL}/api/clises/buscar`;
         const params = new URLSearchParams();
 
         if (nombre) params.append("nombre", nombre);
 
-        url += `?${params.toString()}`;
+        if (params.toString()) {
+            url += `?${params.toString()}`;
+        }
 
         fetch(url)
             .then(response => response.json())
@@ -458,7 +486,49 @@ document.addEventListener("DOMContentLoaded", function () {
             .catch(error => console.error("Error al obtener clises:", error));
     }
 
+                                                 //PLACAS
+        function mostrarPlacas(data) {
+            const tbody = document.querySelector("#placas-table tbody");
+            tbody.innerHTML = "";
 
+            if (!data || data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:red;">No se encontraron placas</td></tr>`;
+                return;
+            }
+
+            data.forEach(p => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+            <td>${p.numero}</td>
+            <td>${p.cliente}</td>
+            <td>${p.descripcion}</td>
+            <td>${p.cantidad}</td>
+        `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function fetchPlacas() {
+            const q = descripcionInput.value.trim();
+
+            let url = `${API_BASE_URL}/api/placas/buscar`;
+            const params = new URLSearchParams();
+
+            // Como tu input es uno solo, lo usamos para buscar por cliente o por descripción
+            if (q) {
+                if (q) params.append("q", q);
+
+            }
+
+            if (params.toString()) {
+                url += `?${params.toString()}`;
+            }
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => mostrarPlacas(data))
+                .catch(error => console.error("Error al obtener placas:", error));
+        }
 
 
 });
