@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventario Ecuamag</title>
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="script.js"></script>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <img src="logoEcuamag.png" alt="Logo Ecuamag" class="logo">
+        <select id="listaSelector" class="select-list">
+            <option value="TROQUELES">Troqueles</option>
+            <option value="PLACAS">Placas</option>
+            <option value="CLISES">Clises</option>
+        </select>
+    </div>
+
+    <div class="filter-row">
+        <div>
+            <label for="descripcion">Buscar por nombre:</label>
+            <input type="text" id="descripcion" placeholder="Ingrese una palabra ">
+        </div>
+    </div>
+
+
+
+    <!-- Filtros y tabla para Troqueles -->
+    <div id="troquelesSection" class="section">
+        <div class="filter-row">
+            <div>
+                <label for="inventario">Selecciona una lista:</label>
+                <select id="inventario">
+                    <option value="GRANDE" selected>Troqueles Grandes</option>
+                    <option value="PEQUENO">Troqueles Pequeños</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="tipoTroquel">Tipo de troquel:</label>
+                <select id="tipoTroquel">
+                    <option value="TODOS" selected>Todos</option>
+                    <option value="SOBRE">Sobre</option>
+                    <option value="BOLSA">Shopping bag</option>
+                    <option value="CAJA">Caja</option>
+                    <option value="CARPETA">Carpeta</option>
+                    <option value="FORMA">Forma</option>
+                    <option value="FUNDA">Funda</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="filter-row">
+            <div class="hidden" id="tipoSobre-container">
+                <label for="tipoSobre">Tipo de sobre:</label>
+                <select id="tipoSobre">
+                    <option value="">Todos</option>
+                    <option value="CUADRADO">Cuadrado</option>
+                    <option value="RECTANGULAR">Rectangular</option>
+                    <option value="MEDIO_SOBRE">Medio Sobre</option>
+                </select>
+            </div>
+
+            <div id="tipoForma-container" class="hidden">
+                <label for="tipoForma">Tipo de Forma:</label>
+                <select id="tipoForma">
+                    <option value="">Todos</option>
+                    <option value="CIRCULO">Círculo</option>
+                    <option value="OVALO">Óvalo</option>
+                    <option value="CUADRADO">Cuadrado</option>
+                    <option value="RECTANGULO">Rectángulo</option>
+                    <option value="FORRO">Forro</option>
+                    <option value="PARTE">Parte</option>
+                </select>
+            </div>
+
+
+
+            <div class="hidden" id="orientacion-container">
+                <label for="orientacion">Orientación:</label>
+                <select id="orientacion">
+                    <option value="">Todos</option>
+                    <option value="HORIZONTAL">Horizontal</option>
+                    <option value="VERTICAL">Vertical</option>
+                </select>
+            </div>
+
+
+            <div class="hidden" id="tipoSolapa-container">
+                <label for="tipoSolapa">Tipo de solapa:</label>
+                <select id="tipoSolapa">
+                    <option value="">todos</option>
+                    <option value="CORTA_EN_PUNTA">Corta en punta </option>
+                    <option value="LARGA_EN_PUNTA">Larga en punta </option>
+                    <option value="CORTA_PUNTA_REDONDA">Corta punta redonda</option>
+                    <option value="LARGA_PUNTA_REDONDA">Larga punta redonda</option>
+                    <option value="CORTA_RECTA">Corta recta</option>
+                    <option value="LARGA_RECTA">Larga recta</option>
+                </select>
+            </div>
+
+            <div class="input-group hidden" id="tamanios-container">
+                <label for="ancho">Ancho:</label>
+                <input type="text" id="ancho" placeholder="Cm" class="input-field">
+
+                <label for="largo">Largo:</label>
+                <input type="text" id="largo" placeholder="Cm" class="input-field">
+
+                <div id="alto-container" class="hidden">
+                    <label for="alto">Alto:</label>
+                    <input type="text" id="alto" placeholder="Cm" class="input-field">
+                </div>
+            </div>
+
+        </div>
+
+
+        <div class="table-container">
+            <table id="troqueles-table">
+                <thead>
+                <tr>
+                    <th>Número de Troquel</th>
+                    <th>Tamaño de Corte</th>
+                    <th>Tamaño Cerrado</th>
+                    <th>Tipo de Troquel</th>
+                    <th>Descripción</th>
+                </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Filtros y tabla para Placas -->
+    <div id="placasSection" class="section hidden">
+        <div class="table-container">
+            <table id="placas-table">
+                <thead>
+                <tr>
+                    <th>Número</th>
+                    <th>Cliente</th>
+                    <th>Descripción</th>
+                    <th>Cantidad</th>
+                </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+
+        </div>
+    </div>
+
+
+    <!-- Filtros y tabla para Clises -->
+    <div id="clisesSection" class="section hidden">
+        <div class="table-container">
+            <table id="clises-table">
+                <thead>
+                <tr>
+                    <th>Cliente</th>
+                    <th>Letra</th>
+                    <th>Número</th>
+                    <th>Impresión</th>
+                    <th>Repujado</th>
+                </tr>
+                </thead>
+                <tbody>
+                <!-- Aquí se insertarán los clises dinámicamente -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

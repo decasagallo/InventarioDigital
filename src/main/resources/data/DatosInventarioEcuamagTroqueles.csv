@@ -1,0 +1,145 @@
+Inventario,numero,TipoTroquel,tamanioCorteAncho,tamanioCorteLargo,ancho,largo,Alto,descripcion,TipoSobre,Orientacion,TipoSolapa,TipoForma
+GRANDE,1,SOBRE,20,15,10,10,,sobre de dimensiones 10x10,CUADRADO,,LARGA_EN_PUNTA,
+GRANDE,2,SOBRE,22,17,11,9,,sobre de dimensiones 11x9,MEDIO_SOBRE,VERTICAL,,
+GRANDE,3,SOBRE,24,19,12,12,,sobre de dimensiones 12x12,CUADRADO,,CORTA_EN_PUNTA,
+GRANDE,4,SOBRE,26,21,13,11,,sobre de dimensiones 13x11,RECTANGULAR,HORIZONTAL,LARGA_EN_PUNTA,
+GRANDE,5,SOBRE,28,23,14,14,,sobre de dimensiones 14x14,CUADRADO,,CORTA_EN_PUNTA,
+GRANDE,6,SOBRE,30,25,15,13,,sobre de dimensiones 15x13,MEDIO_SOBRE,HORIZONTAL,,
+GRANDE,7,SOBRE,32,27,16,16,,sobre de dimensiones 16x16,CUADRADO,,LARGA_EN_PUNTA,
+GRANDE,8,SOBRE,34,29,17,15,,sobre de dimensiones 17x15,RECTANGULAR,HORIZONTAL,CORTA_EN_PUNTA,
+GRANDE,9,SOBRE,36,31,18,18,,sobre de dimensiones 18x18,CUADRADO,,CORTA_EN_PUNTA,
+GRANDE,10,SOBRE,38,33,11,17,,sobre de dimensiones 11x17,RECTANGULAR,VERTICAL,LARGA_EN_PUNTA,
+GRANDE,11,BOLSA,20,15,10,8,5.0,bolsa de dimensiones 10x8x5,,,,
+GRANDE,12,BOLSA,22,17,11,9,6.0,bolsa de dimensiones 11x9x6,,,,
+GRANDE,13,BOLSA,24,19,12,10,7.0,bolsa de dimensiones 12x10x7,,,,
+GRANDE,14,BOLSA,26,21,13,11,8.0,bolsa de dimensiones 13x11x8,,,,
+GRANDE,15,BOLSA,28,23,14,12,9.0,bolsa de dimensiones 14x12x9,,,,
+GRANDE,16,BOLSA,30,25,15,13,10.0,bolsa de dimensiones 15x13x10,,,,
+GRANDE,17,BOLSA,32,27,16,14,11.0,bolsa de dimensiones 16x14x11,,,,
+GRANDE,18,BOLSA,34,29,17,15,12.0,bolsa de dimensiones 17x15x12,,,,
+GRANDE,19,BOLSA,36,31,18,16,13.0,bolsa de dimensiones 18x16x13,,,,
+GRANDE,20,BOLSA,38,33,19,17,14.0,bolsa de dimensiones 19x17x14,,,,
+GRANDE,21,CAJA,20,15,10,8,5.0,caja de dimensiones 10x8x5,,,,
+GRANDE,22,CAJA,22,17,11,9,6.0,caja de dimensiones 11x9x6,,,,
+GRANDE,23,CAJA,24,19,12,10,7.0,caja de dimensiones 12x10x7,,,,
+GRANDE,24,CAJA,26,21,13,11,8.0,caja de dimensiones 13x11x8,,,,
+GRANDE,25,CAJA,28,23,14,12,9.0,caja de dimensiones 14x12x9,,,,
+GRANDE,26,CAJA,30,25,15,13,10.0,caja de dimensiones 15x13x10,,,,
+GRANDE,27,CAJA,32,27,16,14,11.0,caja de dimensiones 16x14x11,,,,
+GRANDE,28,CAJA,34,29,17,15,12.0,caja de dimensiones 17x15x12,,,,
+GRANDE,29,CAJA,36,31,18,16,13.0,caja de dimensiones 18x16x13,,,,
+GRANDE,30,CAJA,38,33,19,17,14.0,caja de dimensiones 19x17x14,,,,
+GRANDE,31,CARPETA,20,15,10,8,,carpeta de dimensiones 10x8,,,,
+GRANDE,32,CARPETA,22,17,11,9,,carpeta de dimensiones 11x9,,,,
+GRANDE,33,CARPETA,24,19,12,10,,carpeta de dimensiones 12x10,,,,
+GRANDE,34,CARPETA,26,21,13,11,,carpeta de dimensiones 13x11,,,,
+GRANDE,35,CARPETA,28,23,14,12,,carpeta de dimensiones 14x12,,,,
+GRANDE,36,CARPETA,30,25,15,13,,carpeta de dimensiones 15x13,,,,
+GRANDE,37,CARPETA,32,27,16,14,,carpeta de dimensiones 16x14,,,,
+GRANDE,38,CARPETA,34,29,17,15,,carpeta de dimensiones 17x15,,,,
+GRANDE,39,CARPETA,36,31,18,16,,carpeta de dimensiones 18x16,,,,
+GRANDE,40,CARPETA,38,33,19,17,,carpeta de dimensiones 19x17,,,,
+GRANDE,41,FORMA,20,15,10,8,,parte de dimensiones 10x8,,,,PARTE
+GRANDE,42,FORMA,22,17,11,9,,parte de dimensiones 11x9,,,,PARTE
+GRANDE,43,FORMA,24,19,12,10,,parte de dimensiones 12x10,,,,PARTE
+GRANDE,44,FORMA,26,21,13,11,,parte de dimensiones 13x11,,,,PARTE
+GRANDE,45,FORMA,28,23,14,12,,parte de dimensiones 14x12,,,,PARTE
+GRANDE,46,FORMA,30,25,15,13,,parte de dimensiones 15x13,,,,PARTE
+GRANDE,47,FORMA,32,27,16,14,,parte de dimensiones 16x14,,,,PARTE
+GRANDE,48,FORMA,34,29,17,15,,parte de dimensiones 17x15,,,,PARTE
+GRANDE,49,FORMA,36,31,18,16,,parte de dimensiones 18x16,,,,PARTE
+GRANDE,50,FORMA,38,33,19,17,,parte de dimensiones 19x17,,,,PARTE
+GRANDE,51,FORMA,20,15,7,7,,circulo 7x7,,,,CIRCULO
+GRANDE,52,FORMA,22,17,11,9,,Ovalo 11x9,,,,OVALO
+GRANDE,53,FORMA,24,19,5,5,,cuadrado 5x5,,,,CUADRADO
+GRANDE,54,FORMA,26,21,13,11,,Rectangulo 13x11,,,,RECTANGULO
+GRANDE,55,FORMA,28,23,3,3,,Circulo 3x3,,,,CIRCULO
+GRANDE,56,FORMA,30,25,15,13,,Ovalo 15x13,,,,OVALO
+GRANDE,57,FORMA,32,27,10,10,,Cuadrado 10x10,,,,CUADRADO
+GRANDE,58,FORMA,34,29,17,15,,Rectangulo 17x15,,,,RECTANGULO
+GRANDE,59,FORMA,36,31,6,6,,Circulo 6x6,,,,CIRCULO
+GRANDE,60,FORMA,38,33,19,17,Ovalo 19x17,,,,OVALO
+GRANDE,61,FUNDA,20,15,10,8,,funda de dimensiones 10x8,,,,
+GRANDE,62,FUNDA,22,17,11,9,,funda de dimensiones 11x9,,,,
+GRANDE,63,FUNDA,24,19,12,10,,funda de dimensiones 12x10,,,,
+GRANDE,64,FUNDA,26,21,13,11,,funda de dimensiones 13x11,,,,
+GRANDE,65,FUNDA,28,23,14,12,,funda de dimensiones 14x12,,,,
+GRANDE,66,FUNDA,30,25,15,13,,funda de dimensiones 15x13,,,,
+GRANDE,67,FUNDA,32,27,16,14,,funda de dimensiones 16x14,,,,
+GRANDE,68,FUNDA,34,29,17,15,,funda de dimensiones 17x15,,,,
+GRANDE,69,FUNDA,36,31,18,16,,funda de dimensiones 18x16,,,,
+GRANDE,70,FUNDA,38,33,19,17,,funda de dimensiones 19x17,,,,
+PEQUENO,1,SOBRE,20,15,8,8,,sobre de dimensiones 8x8,CUADRADO,,LARGA_EN_PUNTA,
+PEQUENO,2,SOBRE,22,17,9,12,,sobre de dimensiones 9x12,RECTANGULAR,VERTICAL,CORTA_EN_PUNTA,
+PEQUENO,3,SOBRE,24,19,10,10,,sobre de dimensiones 10x10,MEDIO_SOBRE,,,
+PEQUENO,4,SOBRE,26,21,13,11,,sobre de dimensiones 13x11,RECTANGULAR,HORIZONTAL,LARGA_EN_PUNTA,
+PEQUENO,5,SOBRE,28,23,12,12,,sobre de dimensiones 12x12,CUADRADO,,CORTA_EN_PUNTA,
+PEQUENO,6,SOBRE,30,25,15,20,,sobre de dimensiones 15x20,RECTANGULAR,VERTICAL,CORTA_EN_PUNTA,
+PEQUENO,7,SOBRE,32,27,14,14,,sobre de dimensiones 14x14,CUADRADO,,LARGA_EN_PUNTA,
+PEQUENO,8,SOBRE,34,29,17,15,,sobre de dimensiones 17x15,RECTANGULAR,HORIZONTAL,CORTA_EN_PUNTA,
+PEQUENO,9,SOBRE,36,31,6,6,,sobre de dimensiones 6x6,CUADRADO,,CORTA_EN_PUNTA,
+PEQUENO,10,SOBRE,38,33,11,17,,sobre de dimensiones 11x17,RECTANGULAR,VERTICAL,LARGA_EN_PUNTA,
+PEQUENO,11,BOLSA,20,15,10,8,5.0,bolsa de dimensiones 10x8x5,,,,
+PEQUENO,12,BOLSA,22,17,11,9,6.0,bolsa de dimensiones 11x9x6,,,,
+PEQUENO,13,BOLSA,24,19,12,10,7.0,bolsa de dimensiones 12x10x7,,,,
+PEQUENO,14,BOLSA,26,21,13,11,8.0,bolsa de dimensiones 13x11x8,,,,
+PEQUENO,15,BOLSA,28,23,14,12,9.0,bolsa de dimensiones 14x12x9,,,,
+PEQUENO,16,BOLSA,30,25,15,13,10.0,bolsa de dimensiones 15x13x10,,,,
+PEQUENO,17,BOLSA,32,27,16,14,11.0,bolsa de dimensiones 16x14x11,,,,
+PEQUENO,18,BOLSA,34,29,17,15,12.0,bolsa de dimensiones 17x15x12,,,,
+PEQUENO,19,BOLSA,36,31,18,16,13.0,bolsa de dimensiones 18x16x13,,,,
+PEQUENO,20,BOLSA,38,33,19,17,14.0,bolsa de dimensiones 19x17x14,,,,
+PEQUENO,21,CAJA,20,15,10,8,5.0,caja de dimensiones 10x8x5,,,,
+PEQUENO,22,CAJA,22,17,11,9,6.0,caja de dimensiones 11x9x6,,,,
+PEQUENO,23,CAJA,24,19,12,10,7.0,caja de dimensiones 12x10x7,,,,
+PEQUENO,24,CAJA,26,21,13,11,8.0,caja de dimensiones 13x11x8,,,,
+PEQUENO,25,CAJA,28,23,14,12,9.0,caja de dimensiones 14x12x9,,,,
+PEQUENO,26,CAJA,30,25,15,13,10.0,caja de dimensiones 15x13x10,,,,
+PEQUENO,27,CAJA,32,27,16,14,11.0,caja de dimensiones 16x14x11,,,,
+PEQUENO,28,CAJA,34,29,17,15,12.0,caja de dimensiones 17x15x12,,,,
+PEQUENO,29,CAJA,36,31,18,16,13.0,caja de dimensiones 18x16x13,,,,
+PEQUENO,30,CAJA,38,33,19,17,14.0,caja de dimensiones 19x17x14,,,,
+PEQUENO,31,CARPETA,20,15,10,8,,carpeta de dimensiones 10x8,,,,
+PEQUENO,32,CARPETA,22,17,18,9,,carpeta de dimensiones 18x9,,,,
+PEQUENO,33,CARPETA,24,19,17,10,,carpeta de dimensiones 17x10,,,,
+PEQUENO,34,CARPETA,26,21,16,11,,carpeta de dimensiones 16x11,,,,
+PEQUENO,35,CARPETA,28,23,15,12,,carpeta de dimensiones 15x12,,,,
+PEQUENO,36,CARPETA,30,25,14,13,,carpeta de dimensiones 14x13,,,,
+PEQUENO,37,CARPETA,32,27,13,14,,carpeta de dimensiones 13x14,,,,
+PEQUENO,38,CARPETA,34,29,12,15,,carpeta de dimensiones 12x15,,,,
+PEQUENO,39,CARPETA,36,31,11,16,,carpeta de dimensiones 11x16,,,,
+PEQUENO,40,CARPETA,38,33,10,17,,carpeta de dimensiones 10x17,,,,
+PEQUENO,41,FORMA,20,15,10,8,,parte de dimensiones 10x8,,,,PARTE
+PEQUENO,42,FORMA,22,17,11,9,,parte de dimensiones 11x9,,,,PARTE
+PEQUENO,43,FORMA,24,19,12,10,,parte de dimensiones 12x10,,,,PARTE
+PEQUENO,44,FORMA,26,21,13,11,,parte de dimensiones 13x11,,,,PARTE
+PEQUENO,45,FORMA,28,23,14,12,,parte de dimensiones 14x12,,,,PARTE
+PEQUENO,46,FORMA,30,25,15,13,,parte de dimensiones 15x13,,,,PARTE
+PEQUENO,47,FORMA,32,27,16,14,,parte de dimensiones 16x14,,,,PARTE
+PEQUENO,48,FORMA,34,29,17,15,,parte de dimensiones 17x15,,,,PARTE
+PEQUENO,49,FORMA,36,31,18,16,,parte de dimensiones 18x16,,,,PARTE
+PEQUENO,50,FORMA,38,33,19,17,,parte de dimensiones 19x17,,,,PARTE
+PEQUENO,51,FORMA,20,15,8,8,,Circulo 8x8,,,,CIRCULO
+PEQUENO,52,FORMA,22,17,11,9,,Ovalo 11x9,,,,OVALO
+PEQUENO,53,FORMA,24,19,12,12,,Cuadrado 12x12,,,,CUADRADO
+PEQUENO,54,FORMA,26,21,13,11,,Rectangulo 13x11,,,,RECTANGULO
+PEQUENO,55,FORMA,28,23,14,14,,circulo 14x14,,,,CIRCULO
+PEQUENO,56,FORMA,30,25,15,13,,Ovalo 15x13,,,,OVALO
+PEQUENO,57,FORMA,32,27,11,11,,Cuadrado 11x11,,,,CUADRADO
+PEQUENO,58,FORMA,34,29,17,15,,Rectangulo 17x15,,,,RECTANGULO
+PEQUENO,59,FORMA,36,31,18,18,,Circulo 18x18,,,,CIRCULO
+PEQUENO,60,FORMA,38,33,19,17,,Ovalo 19x17,,,,OVALO
+PEQUENO,61,FUNDA,20,15,10,8,,funda de dimensiones 10x8,,,,
+PEQUENO,62,FUNDA,22,17,11,9,,funda de dimensiones 11x9,,,,
+PEQUENO,63,FUNDA,24,19,12,10,,funda de dimensiones 12x10,,,,
+PEQUENO,64,FUNDA,26,21,13,11,,funda de dimensiones 13x11,,,,
+PEQUENO,65,FUNDA,28,23,14,12,,funda de dimensiones 14x12,,,,
+PEQUENO,66,FUNDA,30,25,15,13,,funda de dimensiones 15x13,,,,
+PEQUENO,67,FUNDA,32,27,16,14,,funda de dimensiones 16x14,,,,
+PEQUENO,68,FUNDA,34,29,17,15,,funda de dimensiones 17x15,,,,
+PEQUENO,69,FUNDA,36,31,18,16,,funda de dimensiones 18x16,,,,
+PEQUENO,70,FUNDA,38,33,19,17,,funda de dimensiones 19x17,,,,
+PEQUENO,71,FORMA,40,34,20,18,,Forro del troquel 301,,,,FORRO
+PEQUENO,72,FORMA,42,35,21,19,,Forro del troquel 178,,,,FORRO
+GRANDE,81,FORMA,43,36,22,20,,Forro del troquel 11,,,,FORRO
+GRANDE,82,FORMA,44,37,23,21,,Forro del troquel 25B,,,,FORRO
