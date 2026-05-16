@@ -1,7 +1,7 @@
 // Determina la URL base de la API dependiendo del entorno (local o producción)
 const API_BASE_URL = window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost"
     ? "http://localhost:8080"
-    : "https://inventariodigital.onrender.com";
+    : "https://inventariodigital-1.onrender.com";
 
 // Espera que el DOM esté completamente cargado
 document.addEventListener("DOMContentLoaded", function () {
