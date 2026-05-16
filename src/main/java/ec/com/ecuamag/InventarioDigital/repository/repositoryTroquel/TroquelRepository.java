@@ -15,11 +15,25 @@ import java.util.Optional;
 
 @Repository
 public interface TroquelRepository extends JpaRepository<Troquel, Long> {
+
     List<Troquel> findByInventario(Inventario inventario, Sort sort);
+
     List<Troquel> findByInventarioAndTipo(Inventario inventario, TipoTroquel tipo, Sort sort);
+
     Optional<Troquel> findTopByInventarioOrderByNumeroDesc(Inventario inventario);
 
-    // Buscar troqueles que contengan la palabra clave en la descripción (sin importar mayúsculas/minúsculas)
+    @Query("""
+        SELECT t FROM Troquel t
+        WHERE t.inventario = :inventario
+        AND t.numero = :numero
+        AND COALESCE(t.sufijo, '') = :sufijo
+    """)
+    Optional<Troquel> buscarPorNumeroCompleto(
+            @Param("inventario") Inventario inventario,
+            @Param("numero") Integer numero,
+            @Param("sufijo") String sufijo
+    );
+
     List<Troquel> findByDescripcionContainingIgnoreCase(String descripcion);
 
     @Query("SELECT t FROM Troquel t " +
@@ -34,5 +48,4 @@ public interface TroquelRepository extends JpaRepository<Troquel, Long> {
             @Param("ancho") BigDecimal ancho,
             @Param("largo") BigDecimal largo
     );
-
 }

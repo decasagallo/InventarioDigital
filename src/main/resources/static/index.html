@@ -134,6 +134,7 @@
                     <th>Tamaño Cerrado</th>
                     <th>Tipo de Troquel</th>
                     <th>Descripción</th>
+                    <th class="auth-required hidden">Acciones</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -156,6 +157,7 @@
                     <th>Cliente</th>
                     <th>Descripción</th>
                     <th>Cantidad</th>
+                    <th class="auth-required hidden">Acciones</th>
                 </tr>
                 </thead>
                 <tbody></tbody>
@@ -180,6 +182,7 @@
                     <th>Número</th>
                     <th>Impresión</th>
                     <th>Repujado</th>
+                    <th class="auth-required hidden">Acciones</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -230,6 +233,11 @@
                 <label for="cliseNombreCliente">Cliente</label>
                 <input type="text" id="cliseNombreCliente" name="nombreCliente" list="cliseClientesList" required>
                 <datalist id="cliseClientesList"></datalist>
+
+                <p id="cliseNumeroHint" class="number-hint hidden">
+                    Letra detectada: <strong id="cliseLetraSugerida">-</strong>
+                    | Siguiente número: <strong id="cliseNumeroSugerido">-</strong>
+                </p>
             </div>
 
             <div class="form-grid">

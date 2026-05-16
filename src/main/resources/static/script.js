@@ -82,6 +82,11 @@ document.addEventListener("DOMContentLoaded", function () {
     const loginUsername = document.getElementById("loginUsername");
     const loginPassword = document.getElementById("loginPassword");
     const loginMessage = document.getElementById("loginMessage");
+    const cliseNumeroHint = document.getElementById("cliseNumeroHint");
+    const cliseLetraSugerida = document.getElementById("cliseLetraSugerida");
+    const cliseNumeroSugerido = document.getElementById("cliseNumeroSugerido");
+
+
 
     function authHeaders(extraHeaders = {}) {
         return authToken ? { ...extraHeaders, "X-Auth-Token": authToken } : extraHeaders;
@@ -335,25 +340,65 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // Muestra resultados en la tabla
+
     function mostrarResultados(data, tipo) {
         tableBody.innerHTML = "";
+
         if (!data || data.length === 0) {
             const nombreTipo = (tipo ? tipo.toLowerCase() : "troquel");
             let mensaje = `No se encontraron ${nombreTipo}s con esas características`;
 
-            tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">${mensaje}</td></tr>`;
+            tableBody.innerHTML = `
+            <tr>
+                <td colspan="6" style="text-align:center; color:red;">
+                    ${mensaje}
+                </td>
+            </tr>
+        `;
             return;
         }
+
         data.forEach(item => {
+
+            const tamanioCerrado = `${item.ancho} x ${item.largo}${item.alto ? ' x ' + item.alto : ''}`;
+
             tableBody.innerHTML += `
-                <tr>
-                    <td>${item.numero}${item.sufijo ? item.sufijo : ""}</td>
-                    <td>${item.tamanioCorteAncho} x ${item.tamanioCorteLargo}</td>
-                    <td>${item.ancho} x ${item.largo}${item.alto ? ' x ' + item.alto : ''}</td>
-                    <td>${item.tipo}</td>
-                    <td>${item.descripcion}</td>
-                </tr>`;
+            <tr>
+                <td>${item.numero}${item.sufijo ? item.sufijo : ""}</td>
+
+                <td>
+                    ${item.tamanioCorteAncho} x ${item.tamanioCorteLargo}
+                </td>
+
+                <td>
+                    ${tamanioCerrado}
+                </td>
+
+                <td>${item.tipo}</td>
+
+                <td>${item.descripcion}</td>
+
+                <td class="auth-required ${estaAutenticado() ? "" : "hidden"}">
+
+                    <button
+                        type="button"
+                        class="secondary-button"
+                        onclick='editarTroquelDesdeTabla(${JSON.stringify(item)})'>
+                        Editar
+                    </button>
+
+                    <button
+                        type="button"
+                        class="primary-button"
+                        onclick="eliminarTroquel(${item.id})">
+                        Eliminar
+                    </button>
+
+                </td>
+            </tr>
+        `;
         });
+
         toggleTipoTroquelColumn();
     }
 
@@ -495,6 +540,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function abrirModalTroquel() {
         troquelForm.reset();
+        delete troquelForm.dataset.troquelId;
         modalInventario.value = inventarioSelect.value;
         modalTipoTroquel.value = "";
         troquelFormMessage.textContent = "";
@@ -593,18 +639,36 @@ document.addEventListener("DOMContentLoaded", function () {
             tipoForma: modalTipoForma.value || null
         };
 
-        fetch(`${API_BASE_URL}/api/troqueles`, {
-            method: "POST",
+        const troquelId = troquelForm.dataset.troquelId || "";
+
+        const url = troquelId
+            ? `${API_BASE_URL}/api/troqueles/${troquelId}`
+            : `${API_BASE_URL}/api/troqueles`;
+
+        const metodo = troquelId ? "PUT" : "POST";
+
+        fetch(url, {
+            method: metodo,
             headers: authHeaders({ "Content-Type": "application/json" }),
             body: JSON.stringify(payload)
         })
-            .then(response => response.ok ? response.json() : response.text().then(text => Promise.reject(text)))
+            .then(response =>
+                response.ok
+                    ? response.json()
+                    : response.text().then(text => Promise.reject(text))
+            )
             .then(() => {
-                troquelFormMessage.textContent = "Troquel guardado correctamente";
+                troquelFormMessage.textContent = troquelId
+                    ? "Troquel actualizado correctamente"
+                    : "Troquel guardado correctamente";
+
                 troquelFormMessage.classList.add("success");
                 inventarioSelect.value = modalInventario.value;
                 tipoTroquelSelect.value = "TODOS";
                 fetchData();
+
+                delete troquelForm.dataset.troquelId;
+
                 setTimeout(cerrarModalTroquel, 700);
             })
             .catch(error => {
@@ -679,21 +743,36 @@ document.addEventListener("DOMContentLoaded", function () {
         };
 
         const placaId = placaSeleccionadaId.value;
+
+        console.log("PLACA ID:", placaId);
+        console.log("TIPO:", typeof placaId);
+        console.log("METODO:", placaId ? "PUT" : "POST");
+
         const url = placaId
-            ? `${API_BASE_URL}/api/placas/${placaId}/sumar?cantidad=${payload.cantidad}`
+            ? `${API_BASE_URL}/api/placas/${placaId}`
             : `${API_BASE_URL}/api/placas`;
 
+        const metodo = placaId ? "PUT" : "POST";
+
         fetch(url, {
-            method: "POST",
+            method: metodo,
             headers: authHeaders({ "Content-Type": "application/json" }),
-            body: placaId ? null : JSON.stringify(payload)
+            body: JSON.stringify(payload)
         })
-            .then(response => response.ok ? response.json() : response.text().then(text => Promise.reject(text)))
+            .then(response =>
+                response.ok
+                    ? response.json()
+                    : response.text().then(text => Promise.reject(text))
+            )
             .then(() => {
-                placaFormMessage.textContent = "Placa guardada correctamente";
+                placaFormMessage.textContent = placaId
+                    ? "Placa actualizada correctamente"
+                    : "Placa guardada correctamente";
+
                 placaFormMessage.classList.add("success");
                 listaSelector.value = "PLACAS";
                 toggleSectionVisibility();
+
                 setTimeout(cerrarModalPlaca, 700);
             })
             .catch(error => {
@@ -717,7 +796,10 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function limpiarSeleccionPlaca() {
-        placaSeleccionadaId.value = "";
+        if (placaSeleccionadaId.value) {
+            return;
+        }
+
         placaNumero.disabled = false;
         placaFormMessage.textContent = "";
         placaFormMessage.classList.remove("success");
@@ -790,17 +872,29 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function abrirModalClise() {
         cliseForm.reset();
+        cliseNumeroHint.classList.add("hidden");
+
+        delete cliseForm.dataset.cliseId;
+        delete cliseForm.dataset.cliseLetra;
+        delete cliseForm.dataset.cliseNumero;
+
+        cliseNombreCliente.disabled = false;
+
         cliseImpresion.value = "0";
         cliseRepujado.value = "0";
+
         cliseFormMessage.textContent = "";
         cliseFormMessage.classList.remove("success");
+
         cliseSuggestions.classList.add("hidden");
         cliseSuggestions.innerHTML = "";
+
         cargarClientesClise();
+
         cliseModalOverlay.classList.remove("hidden");
+
         cliseNombreCliente.focus();
     }
-
     function cerrarModalClise() {
         cliseModalOverlay.classList.add("hidden");
     }
@@ -810,10 +904,47 @@ document.addEventListener("DOMContentLoaded", function () {
         cliseFormMessage.textContent = "";
         cliseFormMessage.classList.remove("success");
 
+        const cliseId = cliseForm.dataset.cliseId || "";
+
         const impresion = Number(cliseImpresion.value);
         const repujado = Number(cliseRepujado.value);
+
         if (impresion === 0 && repujado === 0) {
             cliseFormMessage.textContent = "Ingresa al menos una cantidad de impresión o repujado";
+            return;
+        }
+
+        if (cliseId) {
+            const payload = {
+                nombreCliente: cliseNombreCliente.value.trim(),
+                letra: cliseForm.dataset.cliseLetra,
+                numero: Number(cliseForm.dataset.cliseNumero),
+                impresion: impresion,
+                repujado: repujado
+            };
+
+            fetch(`${API_BASE_URL}/api/clises/${cliseId}`, {
+                method: "PUT",
+                headers: authHeaders({ "Content-Type": "application/json" }),
+                body: JSON.stringify(payload)
+            })
+                .then(response =>
+                    response.ok
+                        ? response.json()
+                        : response.text().then(text => Promise.reject(text))
+                )
+                .then(() => {
+                    cliseFormMessage.textContent = "Clisé actualizado correctamente";
+                    cliseFormMessage.classList.add("success");
+                    listaSelector.value = "CLISES";
+                    toggleSectionVisibility();
+                    delete cliseForm.dataset.cliseId;
+                    setTimeout(cerrarModalClise, 700);
+                })
+                .catch(error => {
+                    cliseFormMessage.textContent = `No se pudo guardar el clisé: ${error}`;
+                });
+
             return;
         }
 
@@ -826,7 +957,11 @@ document.addEventListener("DOMContentLoaded", function () {
             method: "POST",
             headers: authHeaders()
         })
-            .then(response => response.ok ? response.json() : response.text().then(text => Promise.reject(text)))
+            .then(response =>
+                response.ok
+                    ? response.json()
+                    : response.text().then(text => Promise.reject(text))
+            )
             .then(() => {
                 cliseFormMessage.textContent = "Clisé guardado correctamente";
                 cliseFormMessage.classList.add("success");
@@ -942,6 +1077,7 @@ document.addEventListener("DOMContentLoaded", function () {
     cancelCliseModalButton.addEventListener("click", cerrarModalClise);
     cliseForm.addEventListener("submit", guardarClise);
     cliseNombreCliente.addEventListener("blur", buscarSugerenciasClise);
+    cliseNombreCliente.addEventListener("input", actualizarSugerenciaNumeroClise);
     cliseModalOverlay.addEventListener("click", event => {
         if (event.target === cliseModalOverlay) {
             cerrarModalClise();
@@ -1011,12 +1147,16 @@ document.addEventListener("DOMContentLoaded", function () {
         data.forEach(c => {
             const tr = document.createElement("tr");
             tr.innerHTML = `
-                <td>${c.nombreCliente}</td>
-                <td>${c.letra}</td>
-                <td>${c.numero}</td>
-                <td>${c.impresion}</td>
-                <td>${c.repujado}</td>
-            `;
+            <td>${c.nombreCliente}</td>
+            <td>${c.letra}</td>
+            <td>${c.numero}</td>
+            <td>${c.impresion}</td>
+            <td>${c.repujado}</td>
+            <td class="auth-required ${estaAutenticado() ? "" : "hidden"}">
+                <button type="button" class="secondary-button" onclick='editarCliseDesdeTabla(${JSON.stringify(c)})'>Editar</button>
+                <button type="button" class="primary-button" onclick="eliminarClise(${c.id})">Eliminar</button>
+            </td>
+        `;
             tbody.appendChild(tr);
         });
     }
@@ -1040,26 +1180,43 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
                                                  //PLACAS
-        function mostrarPlacas(data) {
-            const tbody = document.querySelector("#placas-table tbody");
-            tbody.innerHTML = "";
+    function mostrarPlacas(data) {
+        const tbody = document.querySelector("#placas-table tbody");
+        tbody.innerHTML = "";
 
-            if (!data || data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:red;">No se encontraron placas</td></tr>`;
-                return;
-            }
+        if (!data || data.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:red;">No se encontraron placas</td></tr>`;
+            return;
+        }
 
-            data.forEach(p => {
-                const tr = document.createElement("tr");
-                tr.innerHTML = `
+        data.forEach(p => {
+            const tr = document.createElement("tr");
+
+            tr.innerHTML = `
             <td>${p.numero}</td>
             <td>${p.cliente}</td>
             <td>${p.descripcion}</td>
             <td>${p.cantidad}</td>
+            <td class="auth-required ${estaAutenticado() ? "" : "hidden"}">
+                <button 
+                    type="button"
+                    class="secondary-button"
+                    onclick='editarPlacaDesdeTabla(${JSON.stringify(p)})'>
+                    Editar
+                </button>
+
+                <button
+                    type="button"
+                    class="primary-button"
+                    onclick="eliminarPlaca(${p.id})">
+                    Eliminar
+                </button>
+            </td>
         `;
-                tbody.appendChild(tr);
-            });
-        }
+
+            tbody.appendChild(tr);
+        });
+    }
 
         function fetchPlacas() {
             const q = descripcionInput.value.trim();
@@ -1082,6 +1239,257 @@ document.addEventListener("DOMContentLoaded", function () {
                 .then(data => mostrarPlacas(data))
                 .catch(error => console.error("Error al obtener placas:", error));
         }
+
+    window.editarPlacaDesdeTabla = function (placa) {
+        console.log("PLACA COMPLETA:", placa);
+        console.log("ID DE PLACA:", placa.id);
+
+        placaForm.reset();
+        placaSeleccionadaId.value = placa.id;
+
+        console.log("ID EN INPUT:", placaSeleccionadaId.value);
+
+        placaNumero.disabled = false;
+        placaNumero.value = placa.numero;
+        placaCliente.value = placa.cliente;
+        placaDescripcion.value = placa.descripcion;
+        placaCantidad.value = placa.cantidad;
+
+        placaFormMessage.textContent = "";
+        placaFormMessage.classList.remove("success");
+        placaSuggestions.classList.add("hidden");
+        placaSuggestions.innerHTML = "";
+
+        placaModalOverlay.classList.remove("hidden");
+    };
+
+    window.eliminarPlaca = function (id) {
+
+        if (!confirm("¿Seguro que deseas eliminar esta placa?")) {
+            return;
+        }
+
+        fetch(`${API_BASE_URL}/api/placas/${id}`, {
+            method: "DELETE",
+            headers: authHeaders()
+        })
+            .then(response =>
+                response.ok
+                    ? null
+                    : response.text().then(text => Promise.reject(text))
+            )
+            .then(() => {
+                fetchPlacas();
+            })
+            .catch(error => {
+                alert(`No se pudo eliminar la placa: ${error}`);
+            });
+    };
+
+    window.editarCliseDesdeTabla = function (clise) {
+        cliseForm.reset();
+
+        cliseForm.dataset.cliseId = clise.id;
+        cliseForm.dataset.cliseLetra = clise.letra;
+        cliseForm.dataset.cliseNumero = clise.numero;
+
+        cliseNombreCliente.disabled = true;
+
+        cliseNombreCliente.value = clise.nombreCliente;
+        cliseImpresion.value = clise.impresion;
+        cliseRepujado.value = clise.repujado;
+
+        cliseFormMessage.textContent = "";
+        cliseFormMessage.classList.remove("success");
+
+        cliseSuggestions.classList.add("hidden");
+        cliseSuggestions.innerHTML = "";
+
+        cliseModalOverlay.classList.remove("hidden");
+
+        cliseNombreCliente.focus();
+    };
+
+    window.eliminarClise = function (id) {
+        if (!confirm("¿Seguro que deseas eliminar este clisé?")) {
+            return;
+        }
+
+        fetch(`${API_BASE_URL}/api/clises/${id}`, {
+            method: "DELETE",
+            headers: authHeaders()
+        })
+            .then(response =>
+                response.ok
+                    ? null
+                    : response.text().then(text => Promise.reject(text))
+            )
+            .then(() => fetchClises())
+            .catch(error => alert(`No se pudo eliminar el clisé: ${error}`));
+    };
+
+    function actualizarSugerenciaNumeroClise() {
+        const nombre = cliseNombreCliente.value.trim();
+
+        if (!nombre) {
+            cliseNumeroHint.classList.add("hidden");
+            return;
+        }
+
+        const letra = nombre.charAt(0).toUpperCase();
+
+        fetch(`${API_BASE_URL}/api/clises/buscar`)
+            .then(response => response.json())
+            .then(data => {
+                const maxNumero = data
+                    .filter(c => c.letra === letra)
+                    .map(c => Number(c.numero))
+                    .reduce((max, n) => Math.max(max, n), 0);
+
+                cliseLetraSugerida.textContent = letra;
+                cliseNumeroSugerido.textContent = maxNumero + 1;
+                cliseNumeroHint.classList.remove("hidden");
+            });
+    }
+
+    function actualizarSugerenciaNumeroClise() {
+        const nombre = cliseNombreCliente.value.trim();
+
+        if (!nombre || cliseForm.dataset.cliseId) {
+            cliseNumeroHint.classList.add("hidden");
+            return;
+        }
+
+        const letra = nombre.charAt(0).toUpperCase();
+
+        fetch(`${API_BASE_URL}/api/clises/buscar`)
+            .then(response => response.json())
+            .then(data => {
+                const maxNumero = data
+                    .filter(c => c.letra === letra)
+                    .map(c => Number(c.numero))
+                    .reduce((max, n) => Math.max(max, n), 0);
+
+                cliseLetraSugerida.textContent = letra;
+                cliseNumeroSugerido.textContent = maxNumero + 1;
+                cliseNumeroHint.classList.remove("hidden");
+            })
+            .catch(error => console.error("Error al calcular número sugerido de clisé:", error));
+    }
+
+    function mostrarResultados(data, tipo) {
+        tableBody.innerHTML = "";
+
+        if (!data || data.length === 0) {
+            const nombreTipo = (tipo ? tipo.toLowerCase() : "troquel");
+            let mensaje = `No se encontraron ${nombreTipo}s con esas características`;
+
+            tableBody.innerHTML = `
+            <tr>
+                <td colspan="6" style="text-align:center; color:red;">
+                    ${mensaje}
+                </td>
+            </tr>
+        `;
+            return;
+        }
+
+        data.forEach(item => {
+
+            const tamanioCerrado = `${item.ancho} x ${item.largo}${item.alto ? ' x ' + item.alto : ''}`;
+
+            tableBody.innerHTML += `
+            <tr>
+                <td>${item.numero}${item.sufijo ? item.sufijo : ""}</td>
+
+                <td>
+                    ${item.tamanioCorteAncho} x ${item.tamanioCorteLargo}
+                </td>
+
+                <td>
+                    ${tamanioCerrado}
+                </td>
+
+                <td>${item.tipo}</td>
+
+                <td>${item.descripcion}</td>
+
+                <td class="auth-required ${estaAutenticado() ? "" : "hidden"}">
+
+                    <button
+                        type="button"
+                        class="secondary-button"
+                        onclick='editarTroquelDesdeTabla(${JSON.stringify(item)})'>
+                        Editar
+                    </button>
+
+                    <button
+                        type="button"
+                        class="primary-button"
+                        onclick="eliminarTroquel(${item.id})">
+                        Eliminar
+                    </button>
+
+                </td>
+            </tr>
+        `;
+        });
+
+        toggleTipoTroquelColumn();
+    }
+
+    window.editarTroquelDesdeTabla = function (troquel) {
+        troquelForm.reset();
+
+        troquelForm.dataset.troquelId = troquel.id;
+
+        modalInventario.value = troquel.inventario;
+        modalTipoTroquel.value = troquel.tipo;
+        modalNumero.value = troquel.numero;
+
+        document.getElementById("modalSufijo").value = troquel.sufijo || "";
+        document.getElementById("modalDescripcion").value = troquel.descripcion || "";
+        document.getElementById("modalCorteAncho").value = troquel.tamanioCorteAncho || "";
+        document.getElementById("modalCorteLargo").value = troquel.tamanioCorteLargo || "";
+        document.getElementById("modalCerradoAncho").value = troquel.ancho || "";
+        document.getElementById("modalCerradoLargo").value = troquel.largo || "";
+
+        modalAlto.value = troquel.alto || "";
+        modalTipoSobre.value = troquel.tipoSobre || "";
+        modalTipoSolapa.value = troquel.tipoSolapa || "";
+        modalOrientacion.value = troquel.orientacion || "";
+        modalTipoForma.value = troquel.tipoForma || "";
+
+        actualizarCamposPorTipoModal();
+        actualizarOrientacionModal();
+
+        troquelFormMessage.textContent = "";
+        troquelFormMessage.classList.remove("success");
+
+        troquelModalOverlay.classList.remove("hidden");
+    };
+
+    window.eliminarTroquel = function (id) {
+        if (!confirm("¿Seguro que deseas eliminar este troquel?")) {
+            return;
+        }
+
+        fetch(`${API_BASE_URL}/api/troqueles/${id}`, {
+            method: "DELETE",
+            headers: authHeaders()
+        })
+            .then(response =>
+                response.ok
+                    ? null
+                    : response.text().then(text => Promise.reject(text))
+            )
+            .then(() => {
+                fetchData();
+            })
+            .catch(error => {
+                alert(`No se pudo eliminar el troquel: ${error}`);
+            });
+    };
 
 
 });

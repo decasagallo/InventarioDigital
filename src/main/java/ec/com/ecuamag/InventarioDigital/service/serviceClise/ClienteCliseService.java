@@ -73,11 +73,28 @@ public class ClienteCliseService {
     public ClienteClise actualizar(Long id, ClienteClise datos) {
         ClienteClise clise = repository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("No existe el clisé seleccionado"));
-        clise.setNombreCliente(limpiarNombre(datos.getNombreCliente()));
-        clise.setLetra(datos.getLetra());
-        clise.setNumero(datos.getNumero());
+
+        String letraAnterior = clise.getLetra();
+
+        String nombreLimpio = limpiarNombre(datos.getNombreCliente());
+        String nuevaLetra = nombreLimpio.substring(0, 1).toUpperCase();
+
+        clise.setNombreCliente(nombreLimpio);
+
+        if (!nuevaLetra.equals(letraAnterior)) {
+            int siguienteNumero = repository.findAll().stream()
+                    .filter(c -> c.getLetra().equals(nuevaLetra))
+                    .map(ClienteClise::getNumero)
+                    .max(Integer::compareTo)
+                    .orElse(0) + 1;
+
+            clise.setLetra(nuevaLetra);
+            clise.setNumero(siguienteNumero);
+        }
+
         clise.setImpresion(datos.getImpresion());
         clise.setRepujado(datos.getRepujado());
+
         return repository.save(clise);
     }
 

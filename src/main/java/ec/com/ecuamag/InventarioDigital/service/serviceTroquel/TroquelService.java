@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class TroquelService {
@@ -34,11 +35,41 @@ public class TroquelService {
     public List<Troquel> buscarPorDescripcion(String descripcion) {
         return troquelRepository.findByDescripcionContainingIgnoreCase(descripcion);
     }
+
     public List<Troquel> filtrarTroquelesGenerico(Inventario inventario, TipoTroquel tipo, BigDecimal ancho, BigDecimal largo) {
         return troquelRepository.filtrarTroquelesGenerico(inventario, tipo, ancho, largo);
     }
 
     public Troquel guardarTroquel(Troquel troquel) {
+        String sufijo = troquel.getSufijo();
+
+        if (sufijo == null) {
+            sufijo = "";
+        }
+
+        sufijo = sufijo.trim().toUpperCase();
+        troquel.setSufijo(sufijo);
+        final String sufijoFinal = sufijo;
+        boolean existeDuplicado = troquelRepository.findByInventario(
+                troquel.getInventario(),
+                Sort.by("numero").ascending()
+        ).stream().anyMatch(t -> {
+            String sufijoExistente = t.getSufijo() == null ? "" : t.getSufijo().trim().toUpperCase();
+
+            boolean mismoNumero = t.getNumero() == troquel.getNumero();
+            boolean mismoSufijo = sufijoExistente.equals(sufijoFinal);
+            boolean mismoRegistro = troquel.getId() != null && t.getId().equals(troquel.getId());
+
+            return mismoNumero && mismoSufijo && !mismoRegistro;
+        });
+
+        if (existeDuplicado) {
+            String numeroCompleto = troquel.getNumero() + sufijo;
+            throw new IllegalArgumentException(
+                    "Ya existe un troquel con el número " + numeroCompleto + " en este inventario"
+            );
+        }
+
         return troquelRepository.save(troquel);
     }
 
@@ -58,6 +89,4 @@ public class TroquelService {
                 .map(Troquel::getNumero)
                 .orElse(0);
     }
-
-
 }
