@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inventario Ecuamag</title>
+    <link rel="icon" type="image/png" href="favicon-ecuamag.png">
     <link rel="stylesheet" href="styles.css">
     <script defer src="script.js"></script>
 </head>
@@ -12,6 +13,11 @@
 <div class="container">
     <div class="header">
         <img src="logoEcuamag.png" alt="Logo Ecuamag" class="logo">
+        <div class="auth-box">
+            <span id="authUser" class="auth-user hidden"></span>
+            <button type="button" id="openLoginModal" class="secondary-button">Iniciar sesión</button>
+            <button type="button" id="logoutButton" class="secondary-button hidden">Salir</button>
+        </div>
         <select id="listaSelector" class="select-list">
             <option value="TROQUELES">Troqueles</option>
             <option value="PLACAS">Placas</option>
@@ -24,6 +30,7 @@
             <label for="descripcion">Buscar por nombre:</label>
             <input type="text" id="descripcion" placeholder="Ingrese una palabra ">
         </div>
+        <button type="button" id="openTroquelModal" class="primary-button new-troquel-button auth-required hidden">Nuevo troquel</button>
     </div>
 
 
@@ -137,6 +144,10 @@
 
     <!-- Filtros y tabla para Placas -->
     <div id="placasSection" class="section hidden">
+        <div class="section-actions">
+            <button type="button" id="openPlacaModal" class="primary-button auth-required hidden">Nueva placa</button>
+        </div>
+
         <div class="table-container">
             <table id="placas-table">
                 <thead>
@@ -156,6 +167,10 @@
 
     <!-- Filtros y tabla para Clises -->
     <div id="clisesSection" class="section hidden">
+        <div class="section-actions">
+            <button type="button" id="openCliseModal" class="primary-button auth-required hidden">Nuevo clisé</button>
+        </div>
+
         <div class="table-container">
             <table id="clises-table">
                 <thead>
@@ -172,6 +187,257 @@
                 </tbody>
             </table>
         </div>
+    </div>
+</div>
+
+<div id="loginModalOverlay" class="modal-overlay hidden">
+    <div class="modal small-modal" role="dialog" aria-modal="true" aria-labelledby="loginModalTitle">
+        <div class="modal-header">
+            <h2 id="loginModalTitle">Iniciar sesión</h2>
+            <button type="button" id="closeLoginModal" class="modal-close" aria-label="Cerrar">x</button>
+        </div>
+
+        <form id="loginForm" class="modal-form">
+            <div class="form-field">
+                <label for="loginUsername">Usuario</label>
+                <input type="text" id="loginUsername" required>
+            </div>
+
+            <div class="form-field">
+                <label for="loginPassword">Clave</label>
+                <input type="password" id="loginPassword" required>
+            </div>
+
+            <p id="loginMessage" class="form-message" aria-live="polite"></p>
+
+            <div class="modal-actions">
+                <button type="submit" class="primary-button">Entrar</button>
+                <button type="button" id="cancelLoginModal" class="secondary-button">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="cliseModalOverlay" class="modal-overlay hidden">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="cliseModalTitle">
+        <div class="modal-header">
+            <h2 id="cliseModalTitle">Crear nuevo clisé</h2>
+            <button type="button" id="closeCliseModal" class="modal-close" aria-label="Cerrar">x</button>
+        </div>
+
+        <form id="cliseForm" class="modal-form">
+            <div class="form-field">
+                <label for="cliseNombreCliente">Cliente</label>
+                <input type="text" id="cliseNombreCliente" name="nombreCliente" list="cliseClientesList" required>
+                <datalist id="cliseClientesList"></datalist>
+            </div>
+
+            <div class="form-grid">
+                <div class="form-field">
+                    <label for="cliseImpresion">Cantidad impresión</label>
+                    <input type="number" id="cliseImpresion" name="impresion" min="0" value="0" required>
+                </div>
+
+                <div class="form-field">
+                    <label for="cliseRepujado">Cantidad repujado</label>
+                    <input type="number" id="cliseRepujado" name="repujado" min="0" value="0" required>
+                </div>
+            </div>
+
+            <div id="cliseSuggestions" class="suggestions-box hidden"></div>
+            <p id="cliseFormMessage" class="form-message" aria-live="polite"></p>
+
+            <div class="modal-actions">
+                <button type="submit" class="primary-button">Guardar clisé</button>
+                <button type="button" id="cancelCliseModal" class="secondary-button">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="placaModalOverlay" class="modal-overlay hidden">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="placaModalTitle">
+        <div class="modal-header">
+            <h2 id="placaModalTitle">Crear nueva placa</h2>
+            <button type="button" id="closePlacaModal" class="modal-close" aria-label="Cerrar">x</button>
+        </div>
+
+        <form id="placaForm" class="modal-form">
+            <input type="hidden" id="placaSeleccionadaId">
+
+            <p class="number-hint">
+                Última placa: <span id="ultimaPlaca">0</span>
+                <strong>Siguiente número sugerido:</strong> <span id="numeroPlacaSugerido">1</span>
+            </p>
+
+            <div class="form-grid">
+                <div class="form-field">
+                    <label for="placaNumero">Número</label>
+                    <input type="number" id="placaNumero" name="numero" min="1" required>
+                </div>
+
+                <div class="form-field">
+                    <label for="placaCantidad">Cantidad</label>
+                    <input type="number" id="placaCantidad" name="cantidad" min="1" value="1" required>
+                </div>
+            </div>
+
+            <div class="form-field">
+                <label for="placaCliente">Cliente</label>
+                <input type="text" id="placaCliente" name="cliente" list="placaClientesList" required>
+                <datalist id="placaClientesList"></datalist>
+            </div>
+
+            <div class="form-field">
+                <label for="placaDescripcion">Descripción</label>
+                <input type="text" id="placaDescripcion" name="descripcion" required>
+            </div>
+
+            <div id="placaSuggestions" class="suggestions-box hidden"></div>
+            <p id="placaFormMessage" class="form-message" aria-live="polite"></p>
+
+            <div class="modal-actions">
+                <button type="submit" class="primary-button">Guardar placa</button>
+                <button type="button" id="cancelPlacaModal" class="secondary-button">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="troquelModalOverlay" class="modal-overlay hidden">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="troquelModalTitle">
+        <div class="modal-header">
+            <h2 id="troquelModalTitle">Crear nuevo troquel</h2>
+            <button type="button" id="closeTroquelModal" class="modal-close" aria-label="Cerrar">x</button>
+        </div>
+
+        <form id="troquelForm" class="modal-form">
+            <div class="form-grid">
+                <div class="form-field">
+                    <label for="modalInventario">Inventario</label>
+                    <select id="modalInventario" name="inventario" required>
+                        <option value="GRANDE">Troqueles Grandes</option>
+                        <option value="PEQUENO">Troqueles Pequeños</option>
+                    </select>
+                </div>
+
+                <div class="form-field">
+                    <label for="modalTipoTroquel">Tipo de troquel</label>
+                    <select id="modalTipoTroquel" name="tipo" required>
+                        <option value="">-- Selecciona --</option>
+                        <option value="SOBRE">Sobre</option>
+                        <option value="BOLSA">Shopping bag</option>
+                        <option value="CAJA">Caja</option>
+                        <option value="CARPETA">Carpeta</option>
+                        <option value="FORMA">Forma</option>
+                        <option value="FUNDA">Funda</option>
+                    </select>
+                </div>
+            </div>
+
+            <p class="number-hint">
+                Último troquel: <span id="ultimoTroquel">0</span>
+                <strong>Siguiente número sugerido:</strong> <span id="numeroSugerido">1</span>
+            </p>
+
+            <div class="form-grid">
+                <div class="form-field">
+                    <label for="modalNumero">Número</label>
+                    <input type="number" id="modalNumero" name="numero" min="1" required>
+                </div>
+
+                <div class="form-field">
+                    <label for="modalSufijo">Sufijo opcional</label>
+                    <input type="text" id="modalSufijo" name="sufijo" maxlength="5" placeholder="Ej: B">
+                </div>
+            </div>
+
+            <div class="form-field">
+                <label for="modalDescripcion">Descripción</label>
+                <input type="text" id="modalDescripcion" name="descripcion" required>
+            </div>
+
+            <div class="form-grid four-columns">
+                <div class="form-field">
+                    <label for="modalCorteAncho">Corte ancho</label>
+                    <input type="number" id="modalCorteAncho" name="tamanioCorteAncho" min="0" step="0.1" required>
+                </div>
+
+                <div class="form-field">
+                    <label for="modalCorteLargo">Corte largo</label>
+                    <input type="number" id="modalCorteLargo" name="tamanioCorteLargo" min="0" step="0.1" required>
+                </div>
+
+                <div class="form-field">
+                    <label for="modalCerradoAncho">Cerrado ancho</label>
+                    <input type="number" id="modalCerradoAncho" name="ancho" min="0" step="0.1" required>
+                </div>
+
+                <div class="form-field">
+                    <label for="modalCerradoLargo">Cerrado largo</label>
+                    <input type="number" id="modalCerradoLargo" name="largo" min="0" step="0.1" required>
+                </div>
+            </div>
+
+            <div id="modalAltoContainer" class="form-field hidden">
+                <label for="modalAlto">Alto</label>
+                <input type="number" id="modalAlto" name="alto" min="0" step="0.1">
+            </div>
+
+            <div id="modalSobreFields" class="form-grid hidden">
+                <div class="form-field">
+                    <label for="modalTipoSobre">Tipo sobre</label>
+                    <select id="modalTipoSobre" name="tipoSobre">
+                        <option value="">--</option>
+                        <option value="CUADRADO">Cuadrado</option>
+                        <option value="RECTANGULAR">Rectangular</option>
+                        <option value="MEDIO_SOBRE">Medio sobre</option>
+                    </select>
+                </div>
+
+                <div class="form-field">
+                    <label for="modalTipoSolapa">Tipo solapa</label>
+                    <select id="modalTipoSolapa" name="tipoSolapa">
+                        <option value="">--</option>
+                        <option value="CORTA_EN_PUNTA">Corta en punta</option>
+                        <option value="LARGA_EN_PUNTA">Larga en punta</option>
+                        <option value="CORTA_PUNTA_REDONDA">Corta punta redonda</option>
+                        <option value="LARGA_PUNTA_REDONDA">Larga punta redonda</option>
+                        <option value="CORTA_RECTA">Corta recta</option>
+                        <option value="LARGA_RECTA">Larga recta</option>
+                    </select>
+                </div>
+
+                <div id="modalOrientacionContainer" class="form-field hidden">
+                    <label for="modalOrientacion">Orientación</label>
+                    <select id="modalOrientacion" name="orientacion">
+                        <option value="">--</option>
+                        <option value="HORIZONTAL">Horizontal</option>
+                        <option value="VERTICAL">Vertical</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="modalFormaFields" class="form-field hidden">
+                <label for="modalTipoForma">Tipo forma</label>
+                <select id="modalTipoForma" name="tipoForma">
+                    <option value="">--</option>
+                    <option value="CIRCULO">Círculo</option>
+                    <option value="OVALO">Óvalo</option>
+                    <option value="CUADRADO">Cuadrado</option>
+                    <option value="RECTANGULO">Rectángulo</option>
+                    <option value="FORRO">Forro</option>
+                    <option value="PARTE">Parte</option>
+                </select>
+            </div>
+
+            <p id="troquelFormMessage" class="form-message" aria-live="polite"></p>
+
+            <div class="modal-actions">
+                <button type="submit" class="primary-button">Guardar troquel</button>
+                <button type="button" id="cancelTroquelModal" class="secondary-button">Cancelar</button>
+            </div>
+        </form>
     </div>
 </div>
 

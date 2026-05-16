@@ -19,7 +19,7 @@ public class CsvImportCliseService {
     private CliseRepository cliseRepository;
 
     private static final Logger LOGGER = Logger.getLogger(CsvImportCliseService.class.getName());
-    private static final String CSV_PATH = "data/DatosInventarioEcuamagClises.csv"; // debe estar en src/main/resources
+    private static final String CSV_PATH = "data/DatosInventarioEcuamagClises.csv";
 
     public void importarDatosDesdeCsv() {
         try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(CSV_PATH)) {
@@ -39,19 +39,24 @@ public class CsvImportCliseService {
 
                 String[] registro = linea.split(",");
 
-                if (registro.length < 4) {
+                // CSV esperado:
+                // nombre,letra,numero,impresion,repujado
+                if (registro.length < 5) {
                     LOGGER.log(Level.WARNING, "Fila ignorada por campos insuficientes: {0}", linea);
                     continue;
                 }
 
                 try {
                     Clise clise = new Clise();
-                    clise.setLetra(get(registro, 0));
-                    clise.setNumero(Integer.parseInt(get(registro, 1)));
-                    clise.setNombre(get(registro, 2));
-                    clise.setDescripcion(get(registro, 3));
+
+                    clise.setNombre(get(registro, 0));
+                    clise.setLetra(get(registro, 1));
+                    clise.setNumero(Integer.parseInt(get(registro, 2)));
+                    clise.setImpresion(Integer.parseInt(get(registro, 3)));
+                    clise.setRepujado(Integer.parseInt(get(registro, 4)));
 
                     cliseRepository.save(clise);
+
                     LOGGER.log(Level.INFO, "Clise guardado: {0}", clise.getNombre());
 
                 } catch (Exception e) {

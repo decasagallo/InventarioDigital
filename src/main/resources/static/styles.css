@@ -20,6 +20,17 @@ body {
     align-items: center;
     position: relative;
     padding: 20px;
+    gap: 14px;
+}
+
+.auth-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.auth-user {
+    font-weight: bold;
 }
 
 .select-list {
@@ -32,20 +43,9 @@ body {
     border-radius: 4px;
 }
 
-/* Media Query para pantallas pequeñas (móviles) */
-@media screen and (max-width: 480px) {
-    .select-list {
-        padding: 8px 10px; /* Reducir el padding para hacer el botón más pequeño */
-        font-size: 12px; /* Reducir el tamaño de la fuente */
-        width: auto; /* Asegurarse de que no ocupe el ancho completo en móviles */
-    }
-}
-
-
-/* Contenedor para el logo y el botón */
 .header-content {
     display: flex;
-    justify-content: center; /* Centra el logo */
+    justify-content: center;
     align-items: center;
     flex-grow: 1;
 }
@@ -58,13 +58,6 @@ body {
     margin-right: auto;
 }
 
-/* Media Query para pantallas pequeñas (móviles) */
-@media screen and (max-width: 480px) {
-    .logo {
-        width: 300px;  /* Ajusta el tamaño del logo para que sea más grande en móviles */
-    }
-}
-
 h1 {
     color: #333;
     margin-top: 0;
@@ -72,7 +65,7 @@ h1 {
     flex-grow: 1;
 }
 
-/* Estilos para selects y inputs */
+/* Inputs generales */
 select, input {
     width: 180px;
     padding: 6px;
@@ -84,13 +77,22 @@ select, input {
     color: white;
 }
 
-/* Filtros y filas */
 .filter-row {
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-start;
     align-items: center;
     margin-bottom: 20px;
+}
+
+.new-troquel-button {
+    margin-left: auto;
+}
+
+.section-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 12px;
 }
 
 .filtro-adicional {
@@ -105,7 +107,7 @@ select, input {
     gap: 10px;
 }
 
-/* Estilos de tabla */
+/* Tabla */
 .table-container {
     margin-top: 20px;
 }
@@ -133,51 +135,208 @@ td {
     text-align: left;
 }
 
-/* Ocultar elementos */
 .hidden {
     display: none !important;
 }
 
-/* Estilos de los campos de entrada */
 .input-field {
-    width: 40px;  /* Reducido a 40px para que solo ocupen 4 dígitos */
+    width: 40px;
     padding: 5px;
     text-align: center;
     color: white;
 }
-/* Media query para pantallas pequeñas */
-@media screen and (max-width: 480px) {
-    .input-field {
-        width: 30px;  /* Reducir aún más el tamaño en pantallas pequeñas */
-        padding: 3px;  /* Reducir el relleno */
-        font-size: 12px;  /* Ajustar el tamaño del texto */
-    }
 
-    .input-field::placeholder {
-        color: white;  /* Cambiar el color del texto del placeholder a blanco */
-    }
-}
-
-
-/* Estilos de etiquetas y botones */
 label, button {
     font-weight: bold;
 }
 
-/* Estilo para selects específicos */
-#orientacion, #tipoSolapa, #tipoSobre, #descripcion {
-    width: 120px; /* Ajusta el valor según lo que necesites */
-    padding: 5px; /* Ajusta el espacio interno */
-    font-weight: bold; /* Si quieres que el texto sea en negrita */
+button {
+    cursor: pointer;
+}
+
+.primary-button {
+    background-color: #FF4500;
+    color: white;
+    border: 1px solid #FF4500;
+    border-radius: 5px;
+    padding: 11px 18px;
+}
+
+.secondary-button {
+    background-color: #ffffff;
+    color: #111111;
+    border: 2px solid #111111;
+    border-radius: 5px;
+    padding: 10px 18px;
+}
+
+/* MODAL */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+    background-color: rgba(0, 0, 0, 0.55);
+}
+
+.modal {
+    width: min(560px, 96vw);
+    max-height: 90vh;
+    overflow-y: auto;
+    background-color: #ffffff;
+    border-radius: 10px;
+    padding: 18px;
+    box-sizing: border-box;
+}
+
+.small-modal {
+    width: min(430px, 96vw);
+}
+
+.modal-header {
+    position: sticky;
+    top: 0;
+    background: #ffffff;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    border-bottom: 1px solid #d9d9d9;
+    padding-bottom: 10px;
+    margin-bottom: 14px;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 22px;
+}
+
+.modal-close {
+    width: 32px;
+    height: 32px;
+    background: transparent;
+    color: #111111;
+    border: 0;
+    font-size: 28px;
+    line-height: 1;
+}
+
+/* Formulario del modal */
+.modal-form select,
+.modal-form input {
+    width: 100%;
+    box-sizing: border-box;
+    margin: 0;
+    border: 1px solid #FF4500;
+    background-color: #FF4500;
+    color: white;
+    border-radius: 6px;
+    min-height: 34px;
+    padding: 6px;
+    text-align: center;
+}
+
+.modal-form input::placeholder {
+    color: #f3f3f3;
+}
+
+/* Grid más compacto */
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px 12px;
+}
+
+/* Antes estaba en 4 columnas; eso hacía el modal muy ancho */
+.four-columns {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 10px;
+}
+
+.form-field label {
+    color: #111111;
+    font-size: 14px;
+}
+
+.number-hint {
+    margin: 6px 0 12px;
+    font-size: 14px;
+}
+
+.form-message {
+    min-height: 16px;
+    margin: 0 0 10px;
+    color: #b00020;
+    font-weight: bold;
+}
+
+.form-message.success {
+    color: #1b7f2a;
+}
+
+/* Botones siempre visibles abajo */
+.modal-actions {
+    position: sticky;
+    bottom: 0;
+    background: #ffffff;
+    z-index: 2;
+    display: flex;
+    gap: 12px;
+    padding-top: 12px;
+    margin-top: 8px;
+    border-top: 1px solid #eeeeee;
+}
+
+.suggestions-box {
+    margin: 0 0 14px;
+    padding: 12px;
+    border: 1px solid #f2a77f;
+    border-radius: 6px;
+    background-color: #fff5ef;
+}
+
+.suggestions-box p {
+    margin: 0 0 10px;
+    font-weight: bold;
+}
+
+.suggestion-button {
+    margin: 0 8px 8px 0;
+    padding: 8px 12px;
+    border: 1px solid #FF4500;
+    border-radius: 5px;
+    background-color: #ffffff;
+    color: #111111;
+}
+
+/* Selects específicos de filtros */
+#orientacion,
+#tipoSolapa,
+#tipoSobre,
+#descripcion {
+    width: 120px;
+    padding: 5px;
+    font-weight: bold;
     margin-bottom: 9px;
 }
-#descripcion, ::placeholder {
+
+#descripcion,
+::placeholder {
     color: #cccccc;
     font-size: 11px;
 }
 
-
-/* Media Queries para mejorar la visualización en dispositivos más pequeños */
+/* Pantallas medianas */
 @media screen and (max-width: 768px) {
     .filter-row {
         flex-direction: column;
@@ -185,28 +344,39 @@ label, button {
     }
 
     select, input {
-        width: 100%;  /* Asegura que los inputs y selects ocupen el ancho completo en pantallas pequeñas */
+        width: 100%;
     }
 
     .input-field {
-        width: 100%;  /* Ancho completo en pantallas pequeñas */
+        width: 100%;
     }
 
     .table-container {
         padding: 0 10px;
     }
 
-    /* Añadir margen entre el logo y el select en pantallas pequeñas */
     .header {
-        flex-direction: column; /* Cambiar la dirección para que logo y select estén en columna */
-        align-items: center; /* Alinear los elementos al centro */
+        flex-direction: column;
+        align-items: center;
     }
 
     .select-list {
-        margin-top: 10px; /* Añadir margen superior */
+        margin-top: 10px;
+    }
+
+    .form-grid,
+    .four-columns {
+        grid-template-columns: 1fr;
+    }
+
+    .modal {
+        width: 96vw;
+        max-height: 92vh;
+        padding: 16px;
     }
 }
 
+/* Celulares */
 @media screen and (max-width: 480px) {
     body {
         font-size: 14px;
@@ -218,6 +388,13 @@ label, button {
 
     .logo {
         width: 150px;
+    }
+
+    .select-list {
+        padding: 8px 10px;
+        font-size: 12px;
+        width: auto;
+        margin-top: 10px;
     }
 
     .filter-row div {
@@ -232,12 +409,27 @@ label, button {
         padding: 8px;
     }
 
-    /* Añadir más espacio entre el logo y el select */
     .header {
         padding-top: 20px;
     }
 
-    .select-list {
-        margin-top: 10px; /* Ajuste del margen entre el logo y el select */
+    .input-field {
+        width: 30px;
+        padding: 3px;
+        font-size: 12px;
+    }
+
+    .input-field::placeholder {
+        color: white;
+    }
+
+    .modal-header h2 {
+        font-size: 19px;
+    }
+
+    .primary-button,
+    .secondary-button {
+        padding: 9px 12px;
+        font-size: 13px;
     }
 }

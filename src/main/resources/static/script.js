@@ -1,10 +1,13 @@
 // Determina la URL base de la API dependiendo del entorno (local o producción)
 const API_BASE_URL = window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost"
-    ? "http://127.0.0.1:8080"
+    ? "http://localhost:8080"
     : "https://inventariodigital.onrender.com";
 
 // Espera que el DOM esté completamente cargado
 document.addEventListener("DOMContentLoaded", function () {
+    let authToken = localStorage.getItem("authToken") || "";
+    let authUsername = localStorage.getItem("authUsername") || "";
+
     // Referencias a elementos del DOM
     const tipoTroquelSelect = document.getElementById("tipoTroquel");
     const inventarioSelect = document.getElementById("inventario");
@@ -23,6 +26,82 @@ document.addEventListener("DOMContentLoaded", function () {
     const descripcionInput = document.getElementById("descripcion");
     const tipoCarpetaContainer = document.getElementById("tipoCarpeta-container");
     const tipoCarpetaSelect = document.getElementById("tipoCarpeta");
+    const openTroquelModalButton = document.getElementById("openTroquelModal");
+    const troquelModalOverlay = document.getElementById("troquelModalOverlay");
+    const closeTroquelModalButton = document.getElementById("closeTroquelModal");
+    const cancelTroquelModalButton = document.getElementById("cancelTroquelModal");
+    const troquelForm = document.getElementById("troquelForm");
+    const modalInventario = document.getElementById("modalInventario");
+    const modalTipoTroquel = document.getElementById("modalTipoTroquel");
+    const modalNumero = document.getElementById("modalNumero");
+    const modalAlto = document.getElementById("modalAlto");
+    const modalAltoContainer = document.getElementById("modalAltoContainer");
+    const modalSobreFields = document.getElementById("modalSobreFields");
+    const modalTipoSobre = document.getElementById("modalTipoSobre");
+    const modalTipoSolapa = document.getElementById("modalTipoSolapa");
+    const modalOrientacion = document.getElementById("modalOrientacion");
+    const modalOrientacionContainer = document.getElementById("modalOrientacionContainer");
+    const modalFormaFields = document.getElementById("modalFormaFields");
+    const modalTipoForma = document.getElementById("modalTipoForma");
+    const ultimoTroquelText = document.getElementById("ultimoTroquel");
+    const numeroSugeridoText = document.getElementById("numeroSugerido");
+    const troquelFormMessage = document.getElementById("troquelFormMessage");
+    const openPlacaModalButton = document.getElementById("openPlacaModal");
+    const placaModalOverlay = document.getElementById("placaModalOverlay");
+    const closePlacaModalButton = document.getElementById("closePlacaModal");
+    const cancelPlacaModalButton = document.getElementById("cancelPlacaModal");
+    const placaForm = document.getElementById("placaForm");
+    const placaNumero = document.getElementById("placaNumero");
+    const placaCantidad = document.getElementById("placaCantidad");
+    const placaCliente = document.getElementById("placaCliente");
+    const placaDescripcion = document.getElementById("placaDescripcion");
+    const placaSeleccionadaId = document.getElementById("placaSeleccionadaId");
+    const placaClientesList = document.getElementById("placaClientesList");
+    const placaSuggestions = document.getElementById("placaSuggestions");
+    const ultimaPlacaText = document.getElementById("ultimaPlaca");
+    const numeroPlacaSugeridoText = document.getElementById("numeroPlacaSugerido");
+    const placaFormMessage = document.getElementById("placaFormMessage");
+    const openCliseModalButton = document.getElementById("openCliseModal");
+    const cliseModalOverlay = document.getElementById("cliseModalOverlay");
+    const closeCliseModalButton = document.getElementById("closeCliseModal");
+    const cancelCliseModalButton = document.getElementById("cancelCliseModal");
+    const cliseForm = document.getElementById("cliseForm");
+    const cliseNombreCliente = document.getElementById("cliseNombreCliente");
+    const cliseImpresion = document.getElementById("cliseImpresion");
+    const cliseRepujado = document.getElementById("cliseRepujado");
+    const cliseClientesList = document.getElementById("cliseClientesList");
+    const cliseSuggestions = document.getElementById("cliseSuggestions");
+    const cliseFormMessage = document.getElementById("cliseFormMessage");
+    const openLoginModalButton = document.getElementById("openLoginModal");
+    const logoutButton = document.getElementById("logoutButton");
+    const authUser = document.getElementById("authUser");
+    const loginModalOverlay = document.getElementById("loginModalOverlay");
+    const closeLoginModalButton = document.getElementById("closeLoginModal");
+    const cancelLoginModalButton = document.getElementById("cancelLoginModal");
+    const loginForm = document.getElementById("loginForm");
+    const loginUsername = document.getElementById("loginUsername");
+    const loginPassword = document.getElementById("loginPassword");
+    const loginMessage = document.getElementById("loginMessage");
+
+    function authHeaders(extraHeaders = {}) {
+        return authToken ? { ...extraHeaders, "X-Auth-Token": authToken } : extraHeaders;
+    }
+
+    function estaAutenticado() {
+        return Boolean(authToken);
+    }
+
+    function actualizarVistaAuth() {
+        const autenticado = estaAutenticado();
+        openLoginModalButton.classList.toggle("hidden", autenticado);
+        logoutButton.classList.toggle("hidden", !autenticado);
+        authUser.classList.toggle("hidden", !autenticado);
+        authUser.textContent = autenticado ? authUsername : "";
+        document.querySelectorAll(".auth-required").forEach(element => {
+            element.classList.toggle("hidden", !autenticado);
+        });
+        toggleSectionVisibility();
+    }
 
     // Muestra/oculta filtros según el tipo de troquel seleccionado
     function toggleFilters() {
@@ -99,6 +178,7 @@ document.addEventListener("DOMContentLoaded", function () {
         troquelesSection.classList.toggle("hidden", selectedOption !== "TROQUELES");
         placasSection.classList.toggle("hidden", selectedOption !== "PLACAS");
         clisesSection.classList.toggle("hidden", selectedOption !== "CLISES");
+        openTroquelModalButton.classList.toggle("hidden", selectedOption !== "TROQUELES" || !estaAutenticado());
 
         if (selectedOption === "CLISES") {
             fetchClises();
@@ -267,7 +347,7 @@ document.addEventListener("DOMContentLoaded", function () {
         data.forEach(item => {
             tableBody.innerHTML += `
                 <tr>
-                    <td>${item.numero}</td>
+                    <td>${item.numero}${item.sufijo ? item.sufijo : ""}</td>
                     <td>${item.tamanioCorteAncho} x ${item.tamanioCorteLargo}</td>
                     <td>${item.ancho} x ${item.largo}${item.alto ? ' x ' + item.alto : ''}</td>
                     <td>${item.tipo}</td>
@@ -413,6 +493,478 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
+    function abrirModalTroquel() {
+        troquelForm.reset();
+        modalInventario.value = inventarioSelect.value;
+        modalTipoTroquel.value = "";
+        troquelFormMessage.textContent = "";
+        troquelFormMessage.classList.remove("success");
+        actualizarCamposPorTipoModal();
+        actualizarNumeroSugerido();
+        troquelModalOverlay.classList.remove("hidden");
+        modalTipoTroquel.focus();
+    }
+
+    function cerrarModalTroquel() {
+        troquelModalOverlay.classList.add("hidden");
+    }
+
+    function actualizarCamposPorTipoModal() {
+        const tipo = modalTipoTroquel.value;
+        const requiereAlto = tipo === "BOLSA" || tipo === "CAJA";
+        const esSobre = tipo === "SOBRE";
+        const esForma = tipo === "FORMA";
+
+        modalAltoContainer.classList.toggle("hidden", !requiereAlto);
+        modalAlto.required = requiereAlto;
+        if (!requiereAlto) {
+            modalAlto.value = "";
+        }
+
+        modalSobreFields.classList.toggle("hidden", !esSobre);
+        modalTipoSobre.required = esSobre;
+        modalTipoSolapa.required = esSobre;
+        if (!esSobre) {
+            modalTipoSobre.value = "";
+            modalTipoSolapa.value = "";
+            modalOrientacion.value = "";
+        }
+
+        modalFormaFields.classList.toggle("hidden", !esForma);
+        modalTipoForma.required = esForma;
+        if (!esForma) {
+            modalTipoForma.value = "";
+        }
+
+        actualizarOrientacionModal();
+    }
+
+    function actualizarOrientacionModal() {
+        const mostrarOrientacion = modalTipoTroquel.value === "SOBRE" &&
+            (modalTipoSobre.value === "RECTANGULAR" || modalTipoSobre.value === "MEDIO_SOBRE");
+
+        modalOrientacionContainer.classList.toggle("hidden", !mostrarOrientacion);
+        modalOrientacion.required = mostrarOrientacion;
+        if (!mostrarOrientacion) {
+            modalOrientacion.value = "";
+        }
+    }
+
+    function actualizarNumeroSugerido() {
+        fetch(`${API_BASE_URL}/api/troqueles/ultimo-numero?inventario=${modalInventario.value}`)
+            .then(response => response.ok ? response.json() : Promise.reject(response.statusText))
+            .then(ultimoNumero => {
+                const sugerido = Number(ultimoNumero) + 1;
+                ultimoTroquelText.textContent = ultimoNumero;
+                numeroSugeridoText.textContent = sugerido;
+                modalNumero.value = sugerido;
+            })
+            .catch(() => {
+                ultimoTroquelText.textContent = "0";
+                numeroSugeridoText.textContent = "1";
+                modalNumero.value = "1";
+            });
+    }
+
+    function obtenerValorDecimal(id) {
+        const valor = document.getElementById(id).value;
+        return valor === "" ? null : Number(valor);
+    }
+
+    function guardarTroquel(event) {
+        event.preventDefault();
+        troquelFormMessage.textContent = "";
+        troquelFormMessage.classList.remove("success");
+
+        const payload = {
+            inventario: modalInventario.value,
+            tipo: modalTipoTroquel.value,
+            numero: Number(modalNumero.value),
+            sufijo: document.getElementById("modalSufijo").value.trim(),
+            descripcion: document.getElementById("modalDescripcion").value.trim(),
+            tamanioCorteAncho: obtenerValorDecimal("modalCorteAncho"),
+            tamanioCorteLargo: obtenerValorDecimal("modalCorteLargo"),
+            ancho: obtenerValorDecimal("modalCerradoAncho"),
+            largo: obtenerValorDecimal("modalCerradoLargo"),
+            alto: obtenerValorDecimal("modalAlto"),
+            tipoSobre: modalTipoSobre.value || null,
+            orientacion: modalOrientacion.value || null,
+            tipoSolapa: modalTipoSolapa.value || null,
+            tipoForma: modalTipoForma.value || null
+        };
+
+        fetch(`${API_BASE_URL}/api/troqueles`, {
+            method: "POST",
+            headers: authHeaders({ "Content-Type": "application/json" }),
+            body: JSON.stringify(payload)
+        })
+            .then(response => response.ok ? response.json() : response.text().then(text => Promise.reject(text)))
+            .then(() => {
+                troquelFormMessage.textContent = "Troquel guardado correctamente";
+                troquelFormMessage.classList.add("success");
+                inventarioSelect.value = modalInventario.value;
+                tipoTroquelSelect.value = "TODOS";
+                fetchData();
+                setTimeout(cerrarModalTroquel, 700);
+            })
+            .catch(error => {
+                troquelFormMessage.textContent = `No se pudo guardar el troquel: ${error}`;
+            });
+    }
+
+    openTroquelModalButton.addEventListener("click", abrirModalTroquel);
+    closeTroquelModalButton.addEventListener("click", cerrarModalTroquel);
+    cancelTroquelModalButton.addEventListener("click", cerrarModalTroquel);
+    modalInventario.addEventListener("change", actualizarNumeroSugerido);
+    modalTipoTroquel.addEventListener("change", actualizarCamposPorTipoModal);
+    modalTipoSobre.addEventListener("change", actualizarOrientacionModal);
+    troquelForm.addEventListener("submit", guardarTroquel);
+    troquelModalOverlay.addEventListener("click", event => {
+        if (event.target === troquelModalOverlay) {
+            cerrarModalTroquel();
+        }
+    });
+
+    document.addEventListener("keydown", event => {
+        if (event.key === "Escape" && !troquelModalOverlay.classList.contains("hidden")) {
+            cerrarModalTroquel();
+        }
+    });
+
+    function abrirModalPlaca() {
+        placaForm.reset();
+        placaSeleccionadaId.value = "";
+        placaNumero.disabled = false;
+        placaCantidad.value = "1";
+        placaFormMessage.textContent = "";
+        placaFormMessage.classList.remove("success");
+        placaSuggestions.classList.add("hidden");
+        placaSuggestions.innerHTML = "";
+        cargarClientesPlaca();
+        actualizarNumeroPlacaSugerido();
+        placaModalOverlay.classList.remove("hidden");
+        placaCliente.focus();
+    }
+
+    function cerrarModalPlaca() {
+        placaModalOverlay.classList.add("hidden");
+    }
+
+    function actualizarNumeroPlacaSugerido() {
+        fetch(`${API_BASE_URL}/api/placas/ultimo-numero`)
+            .then(response => response.ok ? response.json() : Promise.reject(response.statusText))
+            .then(ultimoNumero => {
+                const sugerido = Number(ultimoNumero) + 1;
+                ultimaPlacaText.textContent = ultimoNumero;
+                numeroPlacaSugeridoText.textContent = sugerido;
+                placaNumero.value = sugerido;
+            })
+            .catch(() => {
+                ultimaPlacaText.textContent = "0";
+                numeroPlacaSugeridoText.textContent = "1";
+                placaNumero.value = "1";
+            });
+    }
+
+    function guardarPlaca(event) {
+        event.preventDefault();
+        placaFormMessage.textContent = "";
+        placaFormMessage.classList.remove("success");
+
+        const payload = {
+            numero: Number(placaNumero.value),
+            cliente: placaCliente.value.trim(),
+            descripcion: placaDescripcion.value.trim(),
+            cantidad: Number(placaCantidad.value)
+        };
+
+        const placaId = placaSeleccionadaId.value;
+        const url = placaId
+            ? `${API_BASE_URL}/api/placas/${placaId}/sumar?cantidad=${payload.cantidad}`
+            : `${API_BASE_URL}/api/placas`;
+
+        fetch(url, {
+            method: "POST",
+            headers: authHeaders({ "Content-Type": "application/json" }),
+            body: placaId ? null : JSON.stringify(payload)
+        })
+            .then(response => response.ok ? response.json() : response.text().then(text => Promise.reject(text)))
+            .then(() => {
+                placaFormMessage.textContent = "Placa guardada correctamente";
+                placaFormMessage.classList.add("success");
+                listaSelector.value = "PLACAS";
+                toggleSectionVisibility();
+                setTimeout(cerrarModalPlaca, 700);
+            })
+            .catch(error => {
+                placaFormMessage.textContent = `No se pudo guardar la placa: ${error}`;
+            });
+    }
+
+    function cargarClientesPlaca() {
+        fetch(`${API_BASE_URL}/api/placas/buscar`)
+            .then(response => response.json())
+            .then(data => {
+                const clientes = [...new Set(data.map(placa => placa.cliente).filter(Boolean))];
+                placaClientesList.innerHTML = "";
+                clientes.forEach(cliente => {
+                    const option = document.createElement("option");
+                    option.value = cliente;
+                    placaClientesList.appendChild(option);
+                });
+            })
+            .catch(error => console.error("Error al cargar clientes de placas:", error));
+    }
+
+    function limpiarSeleccionPlaca() {
+        placaSeleccionadaId.value = "";
+        placaNumero.disabled = false;
+        placaFormMessage.textContent = "";
+        placaFormMessage.classList.remove("success");
+    }
+
+    function buscarSugerenciasPlaca() {
+        const cliente = placaCliente.value.trim();
+        const descripcion = placaDescripcion.value.trim();
+        placaSuggestions.classList.add("hidden");
+        placaSuggestions.innerHTML = "";
+
+        if (cliente.length < 3 && descripcion.length < 3) {
+            return;
+        }
+
+        const params = new URLSearchParams();
+        if (cliente) params.append("cliente", cliente);
+        if (descripcion) params.append("descripcion", descripcion);
+
+        fetch(`${API_BASE_URL}/api/placas/sugerencias?${params.toString()}`)
+            .then(response => response.json())
+            .then(data => {
+                if (!data || data.length === 0) {
+                    return;
+                }
+
+                placaSuggestions.innerHTML = "<p>Placas parecidas encontradas:</p>";
+                data.forEach(placa => {
+                    const button = document.createElement("button");
+                    button.type = "button";
+                    button.className = "suggestion-button";
+                    button.textContent = `#${placa.numero} - ${placa.cliente} - ${placa.descripcion} (${placa.cantidad})`;
+                    button.addEventListener("click", () => {
+                        placaSeleccionadaId.value = placa.id;
+                        placaNumero.value = placa.numero;
+                        placaNumero.disabled = true;
+                        placaCliente.value = placa.cliente;
+                        placaDescripcion.value = placa.descripcion;
+                        placaSuggestions.classList.add("hidden");
+                        placaSuggestions.innerHTML = "";
+                        placaFormMessage.textContent = "Se sumará la cantidad a esta placa existente";
+                        placaFormMessage.classList.add("success");
+                    });
+                    placaSuggestions.appendChild(button);
+                });
+                placaSuggestions.classList.remove("hidden");
+            })
+            .catch(error => console.error("Error al buscar sugerencias de placas:", error));
+    }
+
+    openPlacaModalButton.addEventListener("click", abrirModalPlaca);
+    closePlacaModalButton.addEventListener("click", cerrarModalPlaca);
+    cancelPlacaModalButton.addEventListener("click", cerrarModalPlaca);
+    placaForm.addEventListener("submit", guardarPlaca);
+    placaCliente.addEventListener("input", limpiarSeleccionPlaca);
+    placaDescripcion.addEventListener("input", limpiarSeleccionPlaca);
+    placaCliente.addEventListener("blur", buscarSugerenciasPlaca);
+    placaDescripcion.addEventListener("blur", buscarSugerenciasPlaca);
+    placaModalOverlay.addEventListener("click", event => {
+        if (event.target === placaModalOverlay) {
+            cerrarModalPlaca();
+        }
+    });
+
+    document.addEventListener("keydown", event => {
+        if (event.key === "Escape" && !placaModalOverlay.classList.contains("hidden")) {
+            cerrarModalPlaca();
+        }
+    });
+
+    function abrirModalClise() {
+        cliseForm.reset();
+        cliseImpresion.value = "0";
+        cliseRepujado.value = "0";
+        cliseFormMessage.textContent = "";
+        cliseFormMessage.classList.remove("success");
+        cliseSuggestions.classList.add("hidden");
+        cliseSuggestions.innerHTML = "";
+        cargarClientesClise();
+        cliseModalOverlay.classList.remove("hidden");
+        cliseNombreCliente.focus();
+    }
+
+    function cerrarModalClise() {
+        cliseModalOverlay.classList.add("hidden");
+    }
+
+    function guardarClise(event) {
+        event.preventDefault();
+        cliseFormMessage.textContent = "";
+        cliseFormMessage.classList.remove("success");
+
+        const impresion = Number(cliseImpresion.value);
+        const repujado = Number(cliseRepujado.value);
+        if (impresion === 0 && repujado === 0) {
+            cliseFormMessage.textContent = "Ingresa al menos una cantidad de impresión o repujado";
+            return;
+        }
+
+        const params = new URLSearchParams();
+        params.append("nombreCliente", cliseNombreCliente.value.trim());
+        params.append("impresion", impresion);
+        params.append("repujado", repujado);
+
+        fetch(`${API_BASE_URL}/api/clises/agregar-cantidades?${params.toString()}`, {
+            method: "POST",
+            headers: authHeaders()
+        })
+            .then(response => response.ok ? response.json() : response.text().then(text => Promise.reject(text)))
+            .then(() => {
+                cliseFormMessage.textContent = "Clisé guardado correctamente";
+                cliseFormMessage.classList.add("success");
+                listaSelector.value = "CLISES";
+                toggleSectionVisibility();
+                setTimeout(cerrarModalClise, 700);
+            })
+            .catch(error => {
+                cliseFormMessage.textContent = `No se pudo guardar el clisé: ${error}`;
+            });
+    }
+
+    function cargarClientesClise() {
+        fetch(`${API_BASE_URL}/api/clises/buscar`)
+            .then(response => response.json())
+            .then(data => {
+                cliseClientesList.innerHTML = "";
+                data.forEach(cliente => {
+                    const option = document.createElement("option");
+                    option.value = cliente.nombreCliente;
+                    cliseClientesList.appendChild(option);
+                });
+            })
+            .catch(error => console.error("Error al cargar clientes de clisés:", error));
+    }
+
+    function buscarSugerenciasClise() {
+        const nombre = cliseNombreCliente.value.trim();
+        cliseSuggestions.classList.add("hidden");
+        cliseSuggestions.innerHTML = "";
+
+        if (nombre.length < 3) {
+            return;
+        }
+
+        fetch(`${API_BASE_URL}/api/clises/sugerencias?nombre=${encodeURIComponent(nombre)}`)
+            .then(response => response.json())
+            .then(data => {
+                if (!data || data.length === 0) {
+                    return;
+                }
+
+                cliseSuggestions.innerHTML = "<p>Clientes parecidos encontrados:</p>";
+                data.forEach(cliente => {
+                    const button = document.createElement("button");
+                    button.type = "button";
+                    button.className = "suggestion-button";
+                    button.textContent = cliente.nombreCliente;
+                    button.addEventListener("click", () => {
+                        cliseNombreCliente.value = cliente.nombreCliente;
+                        cliseSuggestions.classList.add("hidden");
+                        cliseSuggestions.innerHTML = "";
+                    });
+                    cliseSuggestions.appendChild(button);
+                });
+                cliseSuggestions.classList.remove("hidden");
+            })
+            .catch(error => console.error("Error al buscar sugerencias de clisés:", error));
+    }
+
+    function abrirLoginModal() {
+        loginForm.reset();
+        loginMessage.textContent = "";
+        loginModalOverlay.classList.remove("hidden");
+        loginUsername.focus();
+    }
+
+    function cerrarLoginModal() {
+        loginModalOverlay.classList.add("hidden");
+    }
+
+    function iniciarSesion(event) {
+        event.preventDefault();
+        loginMessage.textContent = "";
+
+        fetch(`${API_BASE_URL}/api/auth/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                username: loginUsername.value.trim(),
+                password: loginPassword.value
+            })
+        })
+            .then(response => response.ok ? response.json() : response.text().then(text => Promise.reject(text)))
+            .then(data => {
+                authToken = data.token;
+                authUsername = data.username;
+                localStorage.setItem("authToken", authToken);
+                localStorage.setItem("authUsername", authUsername);
+                cerrarLoginModal();
+                actualizarVistaAuth();
+            })
+            .catch(error => {
+                loginMessage.textContent = `No se pudo iniciar sesión: ${error}`;
+            });
+    }
+
+    function cerrarSesion() {
+        fetch(`${API_BASE_URL}/api/auth/logout`, {
+            method: "POST",
+            headers: authHeaders()
+        }).finally(() => {
+            authToken = "";
+            authUsername = "";
+            localStorage.removeItem("authToken");
+            localStorage.removeItem("authUsername");
+            actualizarVistaAuth();
+        });
+    }
+
+    openCliseModalButton.addEventListener("click", abrirModalClise);
+    closeCliseModalButton.addEventListener("click", cerrarModalClise);
+    cancelCliseModalButton.addEventListener("click", cerrarModalClise);
+    cliseForm.addEventListener("submit", guardarClise);
+    cliseNombreCliente.addEventListener("blur", buscarSugerenciasClise);
+    cliseModalOverlay.addEventListener("click", event => {
+        if (event.target === cliseModalOverlay) {
+            cerrarModalClise();
+        }
+    });
+
+    openLoginModalButton.addEventListener("click", abrirLoginModal);
+    closeLoginModalButton.addEventListener("click", cerrarLoginModal);
+    cancelLoginModalButton.addEventListener("click", cerrarLoginModal);
+    loginForm.addEventListener("submit", iniciarSesion);
+    logoutButton.addEventListener("click", cerrarSesion);
+    loginModalOverlay.addEventListener("click", event => {
+        if (event.target === loginModalOverlay) {
+            cerrarLoginModal();
+        }
+    });
+
+    document.addEventListener("keydown", event => {
+        if (event.key === "Escape" && !cliseModalOverlay.classList.contains("hidden")) {
+            cerrarModalClise();
+        }
+    });
+
     document.getElementById("alto").value = "";
     document.getElementById("tipoForma").value = "";
 
@@ -440,12 +992,13 @@ document.addEventListener("DOMContentLoaded", function () {
         tamaniosContainer.classList.add("hidden");
         document.getElementById("alto-container").classList.add("hidden");
         document.getElementById("tipoForma-container").classList.add("hidden");
-        tipoCarpetaContainer.classList.add("hidden");
+        if (tipoCarpetaContainer) tipoCarpetaContainer.classList.add("hidden");
     });
 
     // Carga inicial de datos
     fetchData();
     toggleSectionVisibility();
+    actualizarVistaAuth();
 
 
                                  // CLISES

@@ -1,8 +1,8 @@
 package ec.com.ecuamag.InventarioDigital.controller.troquelController;
+
 import ec.com.ecuamag.InventarioDigital.service.serviceTroquel.CsvImportTroquelService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 
 @RestController
 public class CSVImportTroquelController {
@@ -13,7 +13,7 @@ public class CSVImportTroquelController {
         this.csvImportTroquelService = csvImportTroquelService;
     }
 
-    @PostMapping("/importar-csv")
+    @PostMapping("/api/troqueles/importar-csv")
     public String importarCsvDesdeArchivo() {
         try {
             csvImportTroquelService.importarDatosDesdeCsv();

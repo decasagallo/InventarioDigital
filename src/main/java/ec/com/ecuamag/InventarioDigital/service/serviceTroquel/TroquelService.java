@@ -38,6 +38,26 @@ public class TroquelService {
         return troquelRepository.filtrarTroquelesGenerico(inventario, tipo, ancho, largo);
     }
 
+    public Troquel guardarTroquel(Troquel troquel) {
+        return troquelRepository.save(troquel);
+    }
+
+    public Troquel getPorId(Long id) {
+        return troquelRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("No existe el troquel seleccionado"));
+    }
+
+    public Troquel eliminar(Long id) {
+        Troquel troquel = getPorId(id);
+        troquelRepository.delete(troquel);
+        return troquel;
+    }
+
+    public int getUltimoNumeroPorInventario(Inventario inventario) {
+        return troquelRepository.findTopByInventarioOrderByNumeroDesc(inventario)
+                .map(Troquel::getNumero)
+                .orElse(0);
+    }
 
 
 }

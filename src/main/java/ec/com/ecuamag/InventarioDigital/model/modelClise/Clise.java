@@ -7,22 +7,25 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "clise") // Muy importante
+@Table(name = "clise")
 public class Clise {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id; // ✅ Este es el identificador correcto
+    private Long id;
 
-    @Column(name = "letra", columnDefinition = "varchar(255)")
+    @Column(name = "letra")
     private String letra;
 
     @Column(name = "numero")
     private Integer numero;
 
-    @Column(name = "nombre", columnDefinition = "varchar(255)")
+    @Column(name = "nombre")
     private String nombre;
 
-    @Column(name = "descripcion", columnDefinition = "varchar(255)")
-    private String descripcion;
+    @Column(name = "impresion")
+    private Integer impresion;
+
+    @Column(name = "repujado")
+    private Integer repujado;
 }

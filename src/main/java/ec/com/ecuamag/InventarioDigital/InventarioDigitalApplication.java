@@ -16,6 +16,7 @@ public class InventarioDigitalApplication {
 		SpringApplication.run(InventarioDigitalApplication.class, args);
 	}
 
+	/*
 	@Bean
 	CommandLineRunner importarTroqueles(CsvImportTroquelService service) {
 		return args -> service.importarDatosDesdeCsv();
@@ -35,4 +36,5 @@ public class InventarioDigitalApplication {
 	CommandLineRunner importarPlacas(CsvImportPlacaService service) {
 		return args -> service.importarDesdeCsv();
 	}
+	*/
 }

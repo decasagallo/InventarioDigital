@@ -10,6 +10,8 @@ import java.util.Optional;
 
 public interface PlacaRepository extends JpaRepository<Placa, Long> {
 
+    Optional<Placa> findTopByOrderByNumeroDesc();
+
     @Query("""
 
             SELECT p FROM Placa p

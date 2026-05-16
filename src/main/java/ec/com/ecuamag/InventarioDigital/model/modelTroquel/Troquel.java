@@ -12,6 +12,13 @@ import java.math.BigDecimal;
 @Setter
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
+@Table(
+        name = "troquel",
+        uniqueConstraints = @UniqueConstraint(
+                name = "uk_troquel_inv_num_suf",
+                columnNames = {"inventario", "numero", "sufijo"}
+        )
+)
 public abstract class Troquel {
 
     @Id
@@ -19,6 +26,10 @@ public abstract class Troquel {
     private Long id;
 
     private int numero;
+
+    @Column(length = 5)
+    private String sufijo = "";
+
     private String descripcion;
 
     @Column(precision = 4, scale = 1)
@@ -38,4 +49,9 @@ public abstract class Troquel {
 
     @Enumerated(EnumType.STRING)
     private TipoTroquel tipo;
+
+    @Transient
+    public String getNumeroCompleto() {
+        return numero + (sufijo == null ? "" : sufijo.trim());
+    }
 }

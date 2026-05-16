@@ -20,7 +20,7 @@
 
 	<properties>
 		<java.version>21</java.version>
-		<lombok.version>1.18.30</lombok.version>
+		<lombok.version>1.18.46</lombok.version>
 	</properties>
 
 	<dependencies>
@@ -64,11 +64,6 @@
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-thymeleaf</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-devtools</artifactId>
 			<scope>runtime</scope>
 			<optional>true</optional>
@@ -86,10 +81,8 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.8.1</version>
 				<configuration>
-					<source>${java.version}</source>
-					<target>${java.version}</target>
+					<release>${java.version}</release>
 					<annotationProcessorPaths>
 						<annotationProcessorPath>
 							<groupId>org.projectlombok</groupId>

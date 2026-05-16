@@ -11,11 +11,13 @@ import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface TroquelRepository extends JpaRepository<Troquel, Long> {
     List<Troquel> findByInventario(Inventario inventario, Sort sort);
     List<Troquel> findByInventarioAndTipo(Inventario inventario, TipoTroquel tipo, Sort sort);
+    Optional<Troquel> findTopByInventarioOrderByNumeroDesc(Inventario inventario);
 
     // Buscar troqueles que contengan la palabra clave en la descripción (sin importar mayúsculas/minúsculas)
     List<Troquel> findByDescripcionContainingIgnoreCase(String descripcion);
