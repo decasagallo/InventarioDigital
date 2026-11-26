@@ -1,220 +1,408 @@
 package ec.com.ecuamag.InventarioDigital.service.serviceTroquel;
 
-import ec.com.ecuamag.InventarioDigital.enums.Inventario;
-import ec.com.ecuamag.InventarioDigital.enums.Orientacion;
-import ec.com.ecuamag.InventarioDigital.enums.TipoForma;
-import ec.com.ecuamag.InventarioDigital.enums.TipoSobre;
-import ec.com.ecuamag.InventarioDigital.enums.TipoSolapa;
-import ec.com.ecuamag.InventarioDigital.enums.TipoTroquel;
+import com.opencsv.CSVReader;
+import com.opencsv.exceptions.CsvValidationException;
+
+import ec.com.ecuamag.InventarioDigital.enums.*;
 import ec.com.ecuamag.InventarioDigital.model.modelTroquel.*;
 import ec.com.ecuamag.InventarioDigital.repository.repositoryTroquel.TroquelRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
-import java.util.Optional;
+import java.util.Arrays;
+import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Service
 public class CsvImportTroquelService {
 
-    private static final Logger LOGGER = Logger.getLogger(CsvImportTroquelService.class.getName());
-    private static final String CSV_PATH = "data/DatosInventarioEcuamagTroqueles.csv";
+    private static final Logger LOGGER =
+            Logger.getLogger(CsvImportTroquelService.class.getName());
 
-    // CSV:
-    // inventario,numero,sufijo,tipo,corteAncho,corteLargo,ancho,largo,alto,descripcion,tipoSobre,orientacion,tipoSolapa,tipoForma
+    private static final String CSV_PATH =
+            "data/DatosInventarioEcuamagTroqueles.csv";
+
+    // Posiciones de las columnas del nuevo CSV
     private static final int COL_INVENTARIO = 0;
     private static final int COL_NUMERO = 1;
-    private static final int COL_SUFIJO = 2;
-    private static final int COL_TIPO_TROQUEL = 3;
-    private static final int COL_TAMANIO_CORTE_ANCHO = 4;
-    private static final int COL_TAMANIO_CORTE_LARGO = 5;
-    private static final int COL_ANCHO = 6;
-    private static final int COL_LARGO = 7;
-    private static final int COL_ALTO = 8;
-    private static final int COL_DESCRIPCION = 9;
-    private static final int COL_TIPO_SOBRE = 10;
-    private static final int COL_ORIENTACION = 11;
-    private static final int COL_TIPO_SOLAPA = 12;
-    private static final int COL_TIPO_FORMA = 13;
+    private static final int COL_TIPO_TROQUEL = 2;
+    private static final int COL_TAMANIO_CORTE_ANCHO = 3;
+    private static final int COL_TAMANIO_CORTE_LARGO = 4;
+    private static final int COL_ANCHO = 5;
+    private static final int COL_LARGO = 6;
+    private static final int COL_ALTO = 7;
+    private static final int COL_DESCRIPCION = 8;
+    private static final int COL_TIPO_SOBRE = 9;
+    private static final int COL_ORIENTACION = 10;
+    private static final int COL_TIPO_SOLAPA = 11;
+    private static final int COL_TIPO_FORMA = 12;
+    private static final int COL_SUFIJO = 13;
 
     @Autowired
     private TroquelRepository troquelRepository;
 
     public void importarDatosDesdeCsv() {
-        try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(CSV_PATH)) {
+
+        int guardados = 0;
+        int ignorados = 0;
+        int errores = 0;
+
+        try (InputStream inputStream =
+                     getClass().getClassLoader().getResourceAsStream(CSV_PATH)) {
+
             if (inputStream == null) {
-                throw new IOException("No se encontro el archivo CSV en los recursos.");
+                throw new IOException(
+                        "No se encontró el archivo CSV en los recursos."
+                );
             }
 
-            try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
-                String linea;
-                boolean primeraLinea = true;
+            try (CSVReader reader = new CSVReader(
+                    new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
 
-                while ((linea = br.readLine()) != null) {
-                    if (primeraLinea) {
-                        primeraLinea = false;
-                        continue;
+                // Saltar encabezados
+                reader.readNext();
+
+                String[] registro;
+
+                while ((registro = reader.readNext()) != null) {
+
+                    try {
+
+                        if (procesarRegistro(registro)) {
+                            guardados++;
+                        } else {
+                            ignorados++;
+                        }
+
+                    } catch (Exception e) {
+
+                        errores++;
+
+                        LOGGER.log(
+                                Level.WARNING,
+                                "Error al procesar fila: "
+                                        + Arrays.toString(registro),
+                                e
+                        );
                     }
-
-                    procesarLinea(linea);
                 }
             }
 
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "Error al leer el archivo CSV", e);
+        } catch (IOException | CsvValidationException e) {
+
+            LOGGER.log(
+                    Level.SEVERE,
+                    "Error al leer el archivo CSV",
+                    e
+            );
         }
+
+        LOGGER.info("====================================");
+        LOGGER.info("RESUMEN DE IMPORTACIÓN DE TROQUELES");
+        LOGGER.info("Guardados: " + guardados);
+        LOGGER.info("Ignorados: " + ignorados);
+        LOGGER.info("Errores: " + errores);
+        LOGGER.info("====================================");
     }
 
-    private void procesarLinea(String linea) {
-        String[] registro = linea.split(",", -1);
+    private boolean procesarRegistro(String[] registro) {
 
-        if (registro.length < 10
+        // Validar campos obligatorios
+        if (registro.length != 14
                 || get(registro, COL_INVENTARIO) == null
                 || get(registro, COL_NUMERO) == null
                 || get(registro, COL_TIPO_TROQUEL) == null
                 || get(registro, COL_DESCRIPCION) == null) {
-            LOGGER.log(Level.WARNING, "Fila ignorada por campos obligatorios faltantes: {0}", linea);
-            return;
+
+            LOGGER.log(
+                    Level.WARNING,
+                    "Fila ignorada por campos faltantes: {0}",
+                    Arrays.toString(registro)
+            );
+
+            return false;
         }
 
-        String tipoTroquelStr = get(registro, COL_TIPO_TROQUEL).toUpperCase();
-        Troquel troquel = crearTroquelSegunTipo(tipoTroquelStr);
+        Inventario inventario =
+                parseInventario(get(registro, COL_INVENTARIO));
 
-        if (troquel == null) {
-            LOGGER.log(Level.WARNING, "Tipo de troquel desconocido en fila: {0}", linea);
-            return;
+        int numero =
+                Integer.parseInt(get(registro, COL_NUMERO));
+
+        String sufijo = get(registro, COL_SUFIJO);
+
+        sufijo = sufijo == null
+                ? ""
+                : sufijo.toUpperCase(Locale.ROOT);
+
+        // Evitar registros duplicados
+        if (troquelRepository.buscarPorNumeroCompleto(
+                inventario, numero, sufijo).isPresent()) {
+
+            LOGGER.log(
+                    Level.INFO,
+                    "Troquel ya existente, se omite: {0}{1}",
+                    new Object[]{numero, sufijo}
+            );
+
+            return false;
         }
 
-        try {
-            troquel.setInventario(parseInventario(get(registro, COL_INVENTARIO)));
-            troquel.setTipo(parseTipoTroquel(tipoTroquelStr)
-                    .orElseThrow(() -> new IllegalArgumentException("Tipo de troquel invalido: " + tipoTroquelStr)));
+        String tipoTroquelStr =
+                get(registro, COL_TIPO_TROQUEL)
+                        .toUpperCase(Locale.ROOT);
 
-            troquel.setNumero(Integer.parseInt(get(registro, COL_NUMERO)));
+        Troquel troquel =
+                crearTroquelSegunTipo(tipoTroquelStr);
 
-            String sufijo = get(registro, COL_SUFIJO);
-            troquel.setSufijo(sufijo == null ? "" : sufijo.toUpperCase());
+        // Campos generales
+        troquel.setInventario(inventario);
 
-            troquel.setDescripcion(get(registro, COL_DESCRIPCION));
-            troquel.setTamanioCorteAncho(parseBigDecimal(get(registro, COL_TAMANIO_CORTE_ANCHO)));
-            troquel.setTamanioCorteLargo(parseBigDecimal(get(registro, COL_TAMANIO_CORTE_LARGO)));
-            troquel.setAncho(parseBigDecimal(get(registro, COL_ANCHO)));
-            troquel.setLargo(parseBigDecimal(get(registro, COL_LARGO)));
+        troquel.setTipo(
+                TipoTroquel.valueOf(tipoTroquelStr)
+        );
 
-            asignarCamposPorTipo(troquel, tipoTroquelStr, registro);
+        troquel.setNumero(numero);
+        troquel.setSufijo(sufijo);
 
-            troquelRepository.save(troquel);
+        troquel.setDescripcion(
+                get(registro, COL_DESCRIPCION)
+        );
 
-            LOGGER.log(Level.INFO, "Troquel guardado: {0}", troquel.getNumeroCompleto());
+        // Dimensiones de corte
+        troquel.setTamanioCorteAncho(
+                parseBigDecimal(
+                        get(registro, COL_TAMANIO_CORTE_ANCHO)
+                )
+        );
 
-        } catch (Exception e) {
-            LOGGER.log(Level.WARNING, "Error al procesar fila: " + linea, e);
-        }
+        troquel.setTamanioCorteLargo(
+                parseBigDecimal(
+                        get(registro, COL_TAMANIO_CORTE_LARGO)
+                )
+        );
+
+        // Dimensiones del troquel
+        troquel.setAncho(
+                parseBigDecimal(get(registro, COL_ANCHO))
+        );
+
+        troquel.setLargo(
+                parseBigDecimal(get(registro, COL_LARGO))
+        );
+
+        // Asignar atributos específicos
+        asignarCamposPorTipo(
+                troquel, tipoTroquelStr, registro
+        );
+
+        // Guardar en PostgreSQL
+        troquelRepository.save(troquel);
+
+        LOGGER.log(
+                Level.INFO,
+                "Troquel guardado: {0}",
+                troquel.getNumeroCompleto()
+        );
+
+        return true;
     }
 
-    private void asignarCamposPorTipo(Troquel troquel, String tipoTroquelStr, String[] registro) {
+    private void asignarCamposPorTipo(
+            Troquel troquel,
+            String tipoTroquelStr,
+            String[] registro) {
+
         switch (tipoTroquelStr) {
+
             case "SOBRE" -> {
+
                 Sobre sobre = (Sobre) troquel;
-                sobre.setTipoSobre(parseTipoSobre(get(registro, COL_TIPO_SOBRE)));
-                sobre.setOrientacion(parseOrientacion(get(registro, COL_ORIENTACION)));
-                sobre.setTipoSolapa(parseTipoSolapa(get(registro, COL_TIPO_SOLAPA)));
+
+                TipoSobre tipoSobre =
+                        parseTipoSobre(
+                                get(registro, COL_TIPO_SOBRE)
+                        );
+
+                if (tipoSobre == null) {
+                    throw new IllegalArgumentException(
+                            "Debe especificar el tipo de sobre"
+                    );
+                }
+
+                sobre.setTipoSobre(tipoSobre);
+
+                switch (tipoSobre) {
+
+                    case RECTANGULAR -> {
+
+                        Orientacion orientacion =
+                                parseOrientacion(
+                                        get(registro, COL_ORIENTACION)
+                                );
+
+                        TipoSolapa tipoSolapa =
+                                parseTipoSolapa(
+                                        get(registro, COL_TIPO_SOLAPA)
+                                );
+
+                        if (orientacion == null) {
+                            throw new IllegalArgumentException(
+                                    "El sobre rectangular requiere orientación"
+                            );
+                        }
+
+                        if (tipoSolapa == null) {
+                            throw new IllegalArgumentException(
+                                    "El sobre rectangular requiere solapa"
+                            );
+                        }
+
+                        sobre.setOrientacion(orientacion);
+                        sobre.setTipoSolapa(tipoSolapa);
+                    }
+
+                    case CUADRADO -> {
+
+                        TipoSolapa tipoSolapa =
+                                parseTipoSolapa(
+                                        get(registro, COL_TIPO_SOLAPA)
+                                );
+
+                        if (tipoSolapa == null) {
+                            throw new IllegalArgumentException(
+                                    "El sobre cuadrado requiere solapa"
+                            );
+                        }
+
+                        sobre.setOrientacion(null);
+                        sobre.setTipoSolapa(tipoSolapa);
+                    }
+
+                    case MEDIO_SOBRE -> {
+
+                        sobre.setOrientacion(null);
+                        sobre.setTipoSolapa(null);
+                    }
+                }
             }
 
-            case "CAJA" -> ((Caja) troquel).setAlto(parseBigDecimal(get(registro, COL_ALTO)));
+            case "CAJA" -> {
 
-            case "BOLSA" -> ((Bolsa) troquel).setAlto(parseBigDecimal(get(registro, COL_ALTO)));
+                Caja caja = (Caja) troquel;
 
-            case "FORMA" -> ((Forma) troquel).setTipoForma(parseTipoForma(get(registro, COL_TIPO_FORMA)));
+                caja.setAlto(
+                        parseBigDecimal(get(registro, COL_ALTO))
+                );
+            }
+
+            case "BOLSA" -> {
+
+                Bolsa bolsa = (Bolsa) troquel;
+
+                bolsa.setAlto(
+                        parseBigDecimal(get(registro, COL_ALTO))
+                );
+            }
+
+            case "FORMA" -> {
+
+                Forma forma = (Forma) troquel;
+
+                forma.setTipoForma(
+                        parseTipoForma(get(registro, COL_TIPO_FORMA))
+                );
+            }
 
             case "CARPETA", "FUNDA" -> {
-                // No tienen campos extra.
+                // No tienen atributos adicionales
             }
 
-            default -> LOGGER.log(Level.WARNING, "Tipo de troquel no manejado especificamente: {0}", tipoTroquelStr);
+            default -> throw new IllegalArgumentException(
+                    "Tipo de troquel desconocido: " + tipoTroquelStr
+            );
         }
     }
 
     private String get(String[] registro, int index) {
-        return (registro.length > index && registro[index] != null && !registro[index].trim().isBlank())
+
+        return (registro.length > index
+                && registro[index] != null
+                && !registro[index].trim().isBlank())
+
                 ? registro[index].trim()
                 : null;
     }
 
     private Troquel crearTroquelSegunTipo(String tipo) {
+
         return switch (tipo) {
+
             case "SOBRE" -> new Sobre();
             case "CAJA" -> new Caja();
             case "BOLSA" -> new Bolsa();
             case "FORMA" -> new Forma();
             case "CARPETA" -> new Carpeta();
             case "FUNDA" -> new Funda();
-            default -> null;
+
+            default -> throw new IllegalArgumentException(
+                    "Tipo de troquel inválido: " + tipo
+            );
         };
     }
 
     private BigDecimal parseBigDecimal(String value) {
-        try {
-            return (value == null || value.isBlank()) ? null : new BigDecimal(value);
-        } catch (NumberFormatException e) {
-            return null;
-        }
+
+        return value == null
+                ? null
+                : new BigDecimal(value);
     }
 
     private Orientacion parseOrientacion(String value) {
-        try {
-            return value == null ? null : Orientacion.valueOf(value.toUpperCase());
-        } catch (Exception e) {
-            return null;
-        }
+
+        return value == null
+                ? null
+                : Orientacion.valueOf(
+                value.toUpperCase(Locale.ROOT)
+        );
     }
 
     private TipoSolapa parseTipoSolapa(String value) {
-        try {
-            return value == null ? null : TipoSolapa.valueOf(value.toUpperCase());
-        } catch (Exception e) {
-            return null;
-        }
+
+        return value == null
+                ? null
+                : TipoSolapa.valueOf(
+                value.toUpperCase(Locale.ROOT)
+        );
     }
 
     private Inventario parseInventario(String value) {
-        try {
-            return value == null ? null : Inventario.valueOf(value.toUpperCase());
-        } catch (Exception e) {
-            return null;
-        }
+
+        return Inventario.valueOf(
+                value.toUpperCase(Locale.ROOT)
+        );
     }
 
     private TipoForma parseTipoForma(String value) {
-        try {
-            return value == null ? null : TipoForma.valueOf(value.toUpperCase());
-        } catch (Exception e) {
-            return null;
-        }
+
+        return value == null
+                ? null
+                : TipoForma.valueOf(
+                value.toUpperCase(Locale.ROOT)
+        );
     }
 
     private TipoSobre parseTipoSobre(String value) {
-        try {
-            return value == null ? null : TipoSobre.valueOf(value.toUpperCase());
-        } catch (Exception e) {
-            return null;
-        }
-    }
 
-    private Optional<TipoTroquel> parseTipoTroquel(String value) {
-        try {
-            return (value == null || value.isBlank())
-                    ? Optional.empty()
-                    : Optional.of(TipoTroquel.valueOf(value.toUpperCase()));
-        } catch (Exception e) {
-            return Optional.empty();
-        }
+        return value == null
+                ? null
+                : TipoSobre.valueOf(
+                value.toUpperCase(Locale.ROOT)
+        );
     }
 }

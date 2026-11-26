@@ -14,8 +14,8 @@ public interface FormaRepository extends JpaRepository<Forma, Long> {
 
     @Query("SELECT f FROM Forma f " +
             "WHERE (:tipoForma IS NULL OR f.tipoForma = :tipoForma) " +
-            "AND (:ancho IS NULL OR f.ancho = :ancho) " +
-            "AND (:largo IS NULL OR f.largo = :largo) " +
+            "AND (:ancho IS NULL OR CAST(f.ancho AS string) LIKE CONCAT(CAST(:ancho AS string), '%')) " +
+            "AND (:largo IS NULL OR CAST(f.largo AS string) LIKE CONCAT(CAST(:largo AS string), '%')) " +
             "AND (:inventario IS NULL OR f.inventario = :inventario) " +
             "ORDER BY f.numero ASC")
     List<Forma> filtrarFormas(@Param("tipoForma") TipoForma tipoForma,

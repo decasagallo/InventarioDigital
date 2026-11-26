@@ -14,9 +14,9 @@ import java.util.List;
 public interface CajaRepository extends JpaRepository<Caja, Long> {
 
     @Query("SELECT c FROM Caja c WHERE " +
-            "(:ancho IS NULL OR c.ancho = :ancho) AND " +
-            "(:largo IS NULL OR c.largo = :largo) AND " +
-            "(:alto IS NULL OR c.alto = :alto) AND " +
+            "(:ancho IS NULL OR CAST(c.ancho AS string) LIKE CONCAT(CAST(:ancho AS string), '%')) AND " +
+            "(:largo IS NULL OR CAST(c.largo AS string) LIKE CONCAT(CAST(:largo AS string), '%')) AND " +
+            "(:alto IS NULL OR CAST(c.alto AS string) LIKE CONCAT(CAST(:alto AS string), '%')) AND " +
             "(:inventario IS NULL OR c.inventario = :inventario)")
     List<Caja> filtrarCajas(
             @Param("ancho") BigDecimal ancho,

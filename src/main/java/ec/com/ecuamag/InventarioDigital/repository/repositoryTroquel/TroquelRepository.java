@@ -39,8 +39,8 @@ public interface TroquelRepository extends JpaRepository<Troquel, Long> {
     @Query("SELECT t FROM Troquel t " +
             "WHERE (:inventario IS NULL OR t.inventario = :inventario) " +
             "AND (:tipo IS NULL OR t.tipo = :tipo) " +
-            "AND (:ancho IS NULL OR t.ancho = :ancho) " +
-            "AND (:largo IS NULL OR t.largo = :largo) " +
+            "AND (:ancho IS NULL OR CAST(t.ancho AS string) LIKE CONCAT(CAST(:ancho AS string), '%')) " +
+            "AND (:largo IS NULL OR CAST(t.largo AS string) LIKE CONCAT(CAST(:largo AS string), '%')) " +
             "ORDER BY t.numero ASC")
     List<Troquel> filtrarTroquelesGenerico(
             @Param("inventario") Inventario inventario,

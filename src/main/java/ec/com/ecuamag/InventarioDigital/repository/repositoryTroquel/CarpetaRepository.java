@@ -14,8 +14,8 @@ import java.util.List;
 public interface CarpetaRepository extends JpaRepository<Carpeta, Long> {
 
     @Query("SELECT c FROM Carpeta c " +
-            "WHERE (:ancho IS NULL OR c.ancho = :ancho) " +
-            "AND (:largo IS NULL OR c.largo = :largo) " +
+            "WHERE (:ancho IS NULL OR CAST(c.ancho AS string) LIKE CONCAT(CAST(:ancho AS string), '%')) " +
+            "AND (:largo IS NULL OR CAST(c.largo AS string) LIKE CONCAT(CAST(:largo AS string), '%')) " +
             "AND (:inventario IS NULL OR c.inventario = :inventario) " +
             "ORDER BY c.numero ASC")
     List<Carpeta> filtrarCarpetas(@Param("ancho") BigDecimal ancho,

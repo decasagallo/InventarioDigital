@@ -14,8 +14,8 @@ import java.util.List;
 public interface FundaRepository extends JpaRepository<Funda, Long> {
 
     @Query("SELECT f FROM Funda f " +
-            "WHERE (:ancho IS NULL OR f.ancho = :ancho) " +
-            "AND (:largo IS NULL OR f.largo = :largo) " +
+            "WHERE (:ancho IS NULL OR CAST(f.ancho AS string) LIKE CONCAT(CAST(:ancho AS string), '%')) " +
+            "AND (:largo IS NULL OR CAST(f.largo AS string) LIKE CONCAT(CAST(:largo AS string), '%')) " +
             "AND (:inventario IS NULL OR f.inventario = :inventario) " +
             "ORDER BY f.numero ASC")
     List<Funda> filtrarFundas(@Param("ancho") BigDecimal ancho,

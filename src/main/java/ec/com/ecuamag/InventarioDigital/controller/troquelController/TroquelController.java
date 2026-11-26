@@ -83,10 +83,26 @@ public class TroquelController {
         troquel.setTipo(request.getTipo());
 
         if (troquel instanceof Sobre sobre) {
+
             sobre.setTipoSobre(request.getTipoSobre());
-            sobre.setOrientacion(request.getOrientacion());
-            sobre.setTipoSolapa(request.getTipoSolapa());
-        } else if (troquel instanceof Forma forma) {
+
+            if (request.getTipoSobre() == TipoSobre.RECTANGULAR) {
+
+                sobre.setOrientacion(request.getOrientacion());
+                sobre.setTipoSolapa(request.getTipoSolapa());
+
+            } else if (request.getTipoSobre() == TipoSobre.CUADRADO) {
+
+                sobre.setOrientacion(null);
+                sobre.setTipoSolapa(request.getTipoSolapa());
+
+            } else if (request.getTipoSobre() == TipoSobre.MEDIO_SOBRE) {
+
+                sobre.setOrientacion(null);
+                sobre.setTipoSolapa(null);
+            }
+
+        }else if (troquel instanceof Forma forma) {
             forma.setTipoForma(request.getTipoForma());
         } else if (troquel instanceof Bolsa bolsa) {
             bolsa.setAlto(request.getAlto());
@@ -120,10 +136,26 @@ public class TroquelController {
         troquel.setInventario(request.getInventario());
 
         if (troquel instanceof Sobre sobre) {
+
             sobre.setTipoSobre(request.getTipoSobre());
-            sobre.setOrientacion(request.getOrientacion());
-            sobre.setTipoSolapa(request.getTipoSolapa());
-        } else if (troquel instanceof Forma forma) {
+
+            if (request.getTipoSobre() == TipoSobre.RECTANGULAR) {
+
+                sobre.setOrientacion(request.getOrientacion());
+                sobre.setTipoSolapa(request.getTipoSolapa());
+
+            } else if (request.getTipoSobre() == TipoSobre.CUADRADO) {
+
+                sobre.setOrientacion(null);
+                sobre.setTipoSolapa(request.getTipoSolapa());
+
+            } else if (request.getTipoSobre() == TipoSobre.MEDIO_SOBRE) {
+
+                sobre.setOrientacion(null);
+                sobre.setTipoSolapa(null);
+            }
+
+        }else if (troquel instanceof Forma forma) {
             forma.setTipoForma(request.getTipoForma());
         } else if (troquel instanceof Bolsa bolsa) {
             bolsa.setAlto(request.getAlto());

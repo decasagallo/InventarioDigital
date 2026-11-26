@@ -39,6 +39,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const modalSobreFields = document.getElementById("modalSobreFields");
     const modalTipoSobre = document.getElementById("modalTipoSobre");
     const modalTipoSolapa = document.getElementById("modalTipoSolapa");
+    const modalTipoSolapaContainer = document.getElementById("modalTipoSolapaContainer");
     const modalOrientacion = document.getElementById("modalOrientacion");
     const modalOrientacionContainer = document.getElementById("modalOrientacionContainer");
     const modalFormaFields = document.getElementById("modalFormaFields");
@@ -144,14 +145,33 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Controla visibilidad del filtro de orientación basado en tipo de sobre
     function updateOrientacionVisibility() {
+
         const tipoSobre = tipoSobreSelect.value;
         const orientacionInput = document.getElementById("orientacion");
+        const esSobre = tipoTroquelSelect.value === "SOBRE";
 
-        if (tipoSobre === "RECTANGULAR" || tipoSobre === "MEDIO_SOBRE") {
-            orientacionContainer.classList.remove("hidden");
-        } else {
-            orientacionContainer.classList.add("hidden");
-            orientacionInput.value = ""; // Limpiar valor de orientación
+        const mostrarOrientacion = esSobre &&
+            tipoSobre === "RECTANGULAR";
+
+        const mostrarSolapa = esSobre &&
+            tipoSobre !== "MEDIO_SOBRE";
+
+        // Filtro de orientación
+        orientacionContainer.classList.toggle(
+            "hidden", !mostrarOrientacion
+        );
+
+        if (!mostrarOrientacion) {
+            orientacionInput.value = "";
+        }
+
+        // Filtro de solapa
+        tipoSolapaContainer.classList.toggle(
+            "hidden", !mostrarSolapa
+        );
+
+        if (!mostrarSolapa) {
+            tipoSolapaSelect.value = "";
         }
 
         toggleTipoTroquelColumn();
@@ -195,6 +215,21 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    let solicitudTroqueles = 0;
+    function consultarTroqueles(url, tipo) {
+        const solicitud = ++solicitudTroqueles;
+        return fetch(url)
+            .then(response => response.ok ? response.json() : Promise.reject(response.statusText))
+            .then(data => {
+                if (solicitud !== solicitudTroqueles) return;
+                if (!Array.isArray(data)) throw new Error("Respuesta inválida del servidor");
+                mostrarResultados(data, tipo);
+            })
+            .catch(error => {
+                if (solicitud === solicitudTroqueles) mostrarError(error);
+            });
+    }
+
     // Fetch troqueles normales
     function fetchTroqueles() {
         const inventario = inventarioSelect.value;
@@ -205,10 +240,7 @@ document.addEventListener("DOMContentLoaded", function () {
             url = `${API_BASE_URL}/api/troqueles/filtrar/inventario-y-tipo?inventario=${inventario}&tipo=${tipo}`;
         }
 
-        fetch(url)
-            .then(response => response.ok ? response.json() : Promise.reject(response.statusText))
-            .then(data => mostrarResultados(data))
-            .catch(error => mostrarError(error));
+        consultarTroqueles(url);
     }
 
     // Fetch sobres con filtros
@@ -229,10 +261,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         console.log("URL sobres:", url);
 
-        fetch(url)
-            .then(response => response.json())
-            .then(data => mostrarResultados(data, "SOBRE"))
-            .catch(error => console.error("Error en sobres:", error));
+        consultarTroqueles(url, "SOBRE");
     }
 
     // Fetch carpetas con filtros
@@ -247,10 +276,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         console.log("URL carpetas:", url);
 
-        fetch(url)
-            .then(response => response.json())
-            .then(data => mostrarResultados(data, "CARPETA"))
-            .catch(error => console.error("Error en Carpetas:", error));
+        consultarTroqueles(url, "CARPETA");
     }
 
     // Fetch fundas con filtros
@@ -265,10 +291,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         console.log("URL fundas:", url);
 
-        fetch(url)
-            .then(response => response.json())
-            .then(data => mostrarResultados(data, "FUNDA"))
-            .catch(error => console.error("Error en Fundas:", error));
+        consultarTroqueles(url, "FUNDA");
     }
 
     // Fetch bolsas con filtros
@@ -291,10 +314,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         console.log("URL bolsas:", url);
 
-        fetch(url)
-            .then(response => response.json())
-            .then(data => mostrarResultados(data, "BOLSA"))
-            .catch(error => console.error("Error en Bolsas:", error));
+        consultarTroqueles(url, "BOLSA");
     }
 
     // Fetch cajas con filtros
@@ -310,10 +330,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (alto) url += `&alto=${alto}`;
         console.log("URL cajas:", url);
 
-        fetch(url)
-            .then(response => response.json())
-            .then(data => mostrarResultados(data, "CAJA"))
-            .catch(error => console.error("Error en Cajas:", error));
+        consultarTroqueles(url, "CAJA");
     }
 
     function fetchFormas() {
@@ -333,10 +350,7 @@ document.addEventListener("DOMContentLoaded", function () {
         url += params.toString();
         console.log("URL formas:", url);
 
-        fetch(url)
-            .then(response => response.json())
-            .then(data => mostrarResultados(data, "FORMA"))
-            .catch(error => console.error("Error en Formas:", error));
+        consultarTroqueles(url, "FORMA");
     }
 
     // Muestra resultados en la tabla
@@ -345,12 +359,17 @@ document.addEventListener("DOMContentLoaded", function () {
         tableBody.innerHTML = "";
 
         if (!data || data.length === 0) {
-            const nombreTipo = (tipo ? tipo.toLowerCase() : "troquel");
-            let mensaje = `No se encontraron ${nombreTipo}s con esas características`;
+            const nombreTipo = tipo ? tipo.toLowerCase() : "troquel";
+
+            const nombrePlural = nombreTipo === "troquel"
+                ? "troqueles"
+                : nombreTipo + "s";
+
+            let mensaje = `No se encontraron ${nombrePlural} con esas características`;
 
             tableBody.innerHTML = `
             <tr>
-                <td colspan="6" style="text-align:center; color:red;">
+                <td colspan="${columnasVisiblesTroqueles()}" style="text-align:center; color:red;">
                     ${mensaje}
                 </td>
             </tr>
@@ -400,142 +419,80 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
         toggleTipoTroquelColumn();
+        filtrarDescripcionTroqueles();
     }
 
     // Muestra mensaje de error si falla la solicitud
     function mostrarError(error) {
-        tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">Error en la solicitud: ${error}</td></tr>`;
+        tableBody.innerHTML = `<tr><td colspan="${columnasVisiblesTroqueles()}" style="text-align:center; color:red;">Error en la solicitud: ${error}</td></tr>`;
     }
 
-    // Dispatcher para decidir si cargar sobres o troqueles
+    // Una sola consulta según el tipo seleccionado.
     function fetchData() {
-        tipoTroquelSelect.value === "SOBRE" ? fetchSobres() : fetchTroqueles();
-    }
-
-    // Dispatcher para carpetas
-    function fetchCarpetaData() {
-        tipoTroquelSelect.value === "CARPETA" ? fetchCarpetas() : fetchTroqueles();
-    }
-
-    // Dispatcher para fundas
-    function fetchFundaData() {
-        tipoTroquelSelect.value === "CARPETA" ? fetchFundas() : fetchTroqueles();
-    }
-
-    // Dispatcher para cajas
-    function fetchCajasData() {
-        tipoTroquelSelect.value === "CAJA" ? fetchCajas() : fetchTroqueles();
-    }
-
-    // Dispatcher para formas
-    function fetchFormaData() {
-        tipoTroquelSelect.value === "FORMA" ? fetchFormas() : fetchTroqueles();
-    }
-
-    // ✅ Filtro por descripción / búsqueda (Troqueles o Clises)
-    descripcionInput.addEventListener("input", function () {
-
-        // ✅ Si estás en CLISES, usa el backend para filtrar por nombre
-        if (listaSelector.value === "CLISES") {
-            fetchClises();
-            return;
+        switch (tipoTroquelSelect.value) {
+            case "SOBRE": return fetchSobres();
+            case "CARPETA": return fetchCarpetas();
+            case "FUNDA": return fetchFundas();
+            case "BOLSA": return fetchBolsas();
+            case "CAJA": return fetchCajas();
+            case "FORMA": return fetchFormas();
+            default: return fetchTroqueles();
         }
+    }
 
-        if (listaSelector.value === "PLACAS") {
-            fetchPlacas();
-            return;
-        }
+    function columnasVisiblesTroqueles() {
+        return 4 + (tipoTroquelSelect.value === "TODOS" ? 1 : 0)
+            + (estaAutenticado() ? 1 : 0);
+    }
 
-        // 👇 Si NO estás en CLISES, filtra Troqueles como antes
+    function filtrarDescripcionTroqueles() {
         const filtro = descripcionInput.value.trim().toLowerCase();
-        const filas = document.querySelectorAll("#troqueles-table tbody tr");
-        const mensajeNoResultados = document.getElementById("mensaje-no-resultados");
-        if (mensajeNoResultados) mensajeNoResultados.remove();
+        const anterior = tableBody.querySelector("#mensaje-no-resultados");
+        if (anterior) anterior.remove();
+        const filas = Array.from(tableBody.querySelectorAll("tr"))
+            .filter(fila => fila.cells.length >= 5);
+        if (!filas.length) return;
         let encontrado = false;
-
         filas.forEach(fila => {
-            const descripcion = fila.cells[4].textContent.toLowerCase();
-            if (descripcion.includes(filtro)) {
-                fila.style.display = "";
-                encontrado = true;
-            } else {
-                fila.style.display = "none";
-            }
+            const coincide = fila.cells[4].textContent.toLowerCase().includes(filtro);
+            fila.style.display = coincide ? "" : "none";
+            if (coincide) encontrado = true;
         });
-
         if (!encontrado) {
             const mensaje = document.createElement("tr");
             mensaje.id = "mensaje-no-resultados";
-            mensaje.innerHTML = `<td colspan="5" style="text-align:center; color:red;">No se encontraron coincidencias</td>`;
+            mensaje.innerHTML = `<td colspan="${columnasVisiblesTroqueles()}" style="text-align:center; color:red;">No se encontraron coincidencias</td>`;
             tableBody.appendChild(mensaje);
-        } else if (mensajeNoResultados) {
-            mensajeNoResultados.remove();
         }
+    }
+
+    descripcionInput.addEventListener("input", function () {
+        if (listaSelector.value === "CLISES") return fetchClises();
+        if (listaSelector.value === "PLACAS") return fetchPlacas();
+        filtrarDescripcionTroqueles();
     });
 
-    // Eventos principales de filtro y fetch
-    inventarioSelect.addEventListener("change", fetchData);
-    inventarioSelect.addEventListener("change", fetchCarpetaData);
     tipoTroquelSelect.addEventListener("change", () => {
         toggleFilters();
         fetchData();
-        fetchCarpetaData();
-        fetchFundaData();
-        fetchCajas();
-        fetchCajasData();
     });
-    document.getElementById("orientacion").addEventListener("change", fetchData);
-    tipoSobreSelect.addEventListener("change", () => { updateOrientacionVisibility(); fetchData(); });
-
-    document.getElementById("alto").addEventListener("input", () => {
-        if (tipoTroquelSelect.value === "BOLSA") {
-            fetchBolsas();
-        }
+    document.getElementById("orientacion").addEventListener("change", () => {
+        if (tipoTroquelSelect.value === "SOBRE") fetchData();
+    });
+    tipoSobreSelect.addEventListener("change", () => {
+        updateOrientacionVisibility();
+        if (tipoTroquelSelect.value === "SOBRE") fetchData();
     });
     document.getElementById("alto").addEventListener("input", () => {
-        if (tipoTroquelSelect.value === "CAJA") {
-            fetchCajas();
-        }
+        if (["BOLSA", "CAJA"].includes(tipoTroquelSelect.value)) fetchData();
     });
-
-    document.getElementById("ancho").addEventListener("input", () => {
-        const tipo = tipoTroquelSelect.value;
-        if (tipo === "SOBRE") {
-            fetchSobres();
-        } else if (tipo === "CARPETA") {
-            fetchCarpetas();
-        } else if (tipo === "FUNDA") {
-            fetchFundas();
-        } else if (tipo === "BOLSA") {
-            fetchBolsas();
-        } else if (tipo === "CAJA") {
-            fetchCajas();
-        } else if (tipo === "FORMA") {
-            fetchFormas();
-        }
+    ["ancho", "largo"].forEach(id => {
+        document.getElementById(id).addEventListener("input", () => {
+            if (["SOBRE", "CARPETA", "FUNDA", "BOLSA", "CAJA", "FORMA"].includes(tipoTroquelSelect.value)) fetchData();
+        });
     });
-
-    document.getElementById("largo").addEventListener("input", () => {
-        const tipo = tipoTroquelSelect.value;
-        if (tipo === "SOBRE") {
-            fetchSobres();
-        } else if (tipo === "CARPETA") {
-            fetchCarpetas();
-        } else if (tipo === "FUNDA") {
-            fetchFundas();
-        } else if (tipo === "BOLSA") {
-            fetchBolsas();
-        } else if (tipo === "CAJA") {
-            fetchCajas();
-        } else if (tipo === "FORMA") {
-            fetchFormas();
-        }
-    });
-
     document.getElementById("tipoForma").addEventListener("change", () => {
-        if (tipoTroquelSelect.value === "FORMA") {
-            fetchFormas();
-        }
+        if (tipoTroquelSelect.value === "FORMA") fetchData();
     });
 
     function abrirModalTroquel() {
@@ -563,13 +520,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
         modalAltoContainer.classList.toggle("hidden", !requiereAlto);
         modalAlto.required = requiereAlto;
+
         if (!requiereAlto) {
             modalAlto.value = "";
         }
 
         modalSobreFields.classList.toggle("hidden", !esSobre);
         modalTipoSobre.required = esSobre;
-        modalTipoSolapa.required = esSobre;
+
         if (!esSobre) {
             modalTipoSobre.value = "";
             modalTipoSolapa.value = "";
@@ -578,6 +536,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         modalFormaFields.classList.toggle("hidden", !esForma);
         modalTipoForma.required = esForma;
+
         if (!esForma) {
             modalTipoForma.value = "";
         }
@@ -586,13 +545,37 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function actualizarOrientacionModal() {
-        const mostrarOrientacion = modalTipoTroquel.value === "SOBRE" &&
-            (modalTipoSobre.value === "RECTANGULAR" || modalTipoSobre.value === "MEDIO_SOBRE");
 
-        modalOrientacionContainer.classList.toggle("hidden", !mostrarOrientacion);
+        const esSobre = modalTipoTroquel.value === "SOBRE";
+        const tipoSobre = modalTipoSobre.value;
+
+        const mostrarOrientacion = esSobre &&
+            tipoSobre === "RECTANGULAR";
+
+        const mostrarSolapa = esSobre &&
+            (tipoSobre === "RECTANGULAR" ||
+                tipoSobre === "CUADRADO");
+
+        // Controlar orientación
+        modalOrientacionContainer.classList.toggle(
+            "hidden", !mostrarOrientacion
+        );
+
         modalOrientacion.required = mostrarOrientacion;
+
         if (!mostrarOrientacion) {
             modalOrientacion.value = "";
+        }
+
+        // Controlar tipo de solapa
+        modalTipoSolapaContainer.classList.toggle(
+            "hidden", !mostrarSolapa
+        );
+
+        modalTipoSolapa.required = mostrarSolapa;
+
+        if (!mostrarSolapa) {
+            modalTipoSolapa.value = "";
         }
     }
 
@@ -665,6 +648,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 troquelFormMessage.classList.add("success");
                 inventarioSelect.value = modalInventario.value;
                 tipoTroquelSelect.value = "TODOS";
+                toggleFilters();
                 fetchData();
 
                 delete troquelForm.dataset.troquelId;
@@ -1104,13 +1088,14 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("alto").value = "";
     document.getElementById("tipoForma").value = "";
 
-    tipoSolapaSelect.addEventListener("change", fetchData);
+    tipoSolapaSelect.addEventListener("change", () => {
+        if (tipoTroquelSelect.value === "SOBRE") fetchData();
+    });
     listaSelector.addEventListener("change", toggleSectionVisibility);
 
     // Reinicia todos los filtros al cambiar inventario
     inventarioSelect.addEventListener("change", () => {
         tipoTroquelSelect.value = "TODOS";
-        tipoTroquelSelect.dispatchEvent(new Event("change"));
 
         // Limpiar otros filtros
         tipoSobreSelect.value = "";
@@ -1129,23 +1114,39 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("alto-container").classList.add("hidden");
         document.getElementById("tipoForma-container").classList.add("hidden");
         if (tipoCarpetaContainer) tipoCarpetaContainer.classList.add("hidden");
+        toggleFilters();
+        fetchData();
     });
 
+    let solicitudClises = 0;
+    let solicitudPlacas = 0;
+
     // Carga inicial de datos
-    fetchData();
-    toggleSectionVisibility();
+    toggleFilters();
     actualizarVistaAuth();
 
 
-                                 // CLISES
+    // CLISES
 
 
     function mostrarClises(data) {
         const tbody = document.querySelector("#clises-table tbody");
         tbody.innerHTML = "";
 
+        if (!data || data.length === 0) {
+            tbody.innerHTML = `
+            <tr>
+                <td colspan="6" style="text-align:center; color:red;">
+                    No se encontraron clisés
+                </td>
+            </tr>
+        `;
+            return;
+        }
+
         data.forEach(c => {
             const tr = document.createElement("tr");
+
             tr.innerHTML = `
             <td>${c.nombreCliente}</td>
             <td>${c.letra}</td>
@@ -1153,15 +1154,28 @@ document.addEventListener("DOMContentLoaded", function () {
             <td>${c.impresion}</td>
             <td>${c.repujado}</td>
             <td class="auth-required ${estaAutenticado() ? "" : "hidden"}">
-                <button type="button" class="secondary-button" onclick='editarCliseDesdeTabla(${JSON.stringify(c)})'>Editar</button>
-                <button type="button" class="primary-button" onclick="eliminarClise(${c.id})">Eliminar</button>
+                <button
+                    type="button"
+                    class="secondary-button"
+                    onclick='editarCliseDesdeTabla(${JSON.stringify(c)})'>
+                    Editar
+                </button>
+
+                <button
+                    type="button"
+                    class="primary-button"
+                    onclick="eliminarClise(${c.id})">
+                    Eliminar
+                </button>
             </td>
         `;
+
             tbody.appendChild(tr);
         });
     }
 
     function fetchClises() {
+        const solicitud = ++solicitudClises;
         const nombre = descripcionInput.value.trim();
 
         let url = `${API_BASE_URL}/api/clises/buscar`;
@@ -1175,11 +1189,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
         fetch(url)
             .then(response => response.json())
-            .then(data => mostrarClises(data))
+            .then(data => { if (solicitud === solicitudClises) mostrarClises(data); })
             .catch(error => console.error("Error al obtener clises:", error));
     }
 
-                                                 //PLACAS
+    //PLACAS
     function mostrarPlacas(data) {
         const tbody = document.querySelector("#placas-table tbody");
         tbody.innerHTML = "";
@@ -1218,27 +1232,25 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-        function fetchPlacas() {
-            const q = descripcionInput.value.trim();
+    function fetchPlacas() {
+        const solicitud = ++solicitudPlacas;
+        const q = descripcionInput.value.trim();
 
-            let url = `${API_BASE_URL}/api/placas/buscar`;
-            const params = new URLSearchParams();
+        let url = `${API_BASE_URL}/api/placas/buscar`;
+        const params = new URLSearchParams();
 
-            // Como tu input es uno solo, lo usamos para buscar por cliente o por descripción
-            if (q) {
-                if (q) params.append("q", q);
+        // Como tu input es uno solo, lo usamos para buscar por cliente o por descripción
+        if (q) params.append("q", q);
 
-            }
-
-            if (params.toString()) {
-                url += `?${params.toString()}`;
-            }
-
-            fetch(url)
-                .then(response => response.json())
-                .then(data => mostrarPlacas(data))
-                .catch(error => console.error("Error al obtener placas:", error));
+        if (params.toString()) {
+            url += `?${params.toString()}`;
         }
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => { if (solicitud === solicitudPlacas) mostrarPlacas(data); })
+            .catch(error => console.error("Error al obtener placas:", error));
+    }
 
     window.editarPlacaDesdeTabla = function (placa) {
         console.log("PLACA COMPLETA:", placa);
@@ -1328,29 +1340,7 @@ document.addEventListener("DOMContentLoaded", function () {
             .catch(error => alert(`No se pudo eliminar el clisé: ${error}`));
     };
 
-    function actualizarSugerenciaNumeroClise() {
-        const nombre = cliseNombreCliente.value.trim();
 
-        if (!nombre) {
-            cliseNumeroHint.classList.add("hidden");
-            return;
-        }
-
-        const letra = nombre.charAt(0).toUpperCase();
-
-        fetch(`${API_BASE_URL}/api/clises/buscar`)
-            .then(response => response.json())
-            .then(data => {
-                const maxNumero = data
-                    .filter(c => c.letra === letra)
-                    .map(c => Number(c.numero))
-                    .reduce((max, n) => Math.max(max, n), 0);
-
-                cliseLetraSugerida.textContent = letra;
-                cliseNumeroSugerido.textContent = maxNumero + 1;
-                cliseNumeroHint.classList.remove("hidden");
-            });
-    }
 
     function actualizarSugerenciaNumeroClise() {
         const nombre = cliseNombreCliente.value.trim();
@@ -1377,66 +1367,7 @@ document.addEventListener("DOMContentLoaded", function () {
             .catch(error => console.error("Error al calcular número sugerido de clisé:", error));
     }
 
-    function mostrarResultados(data, tipo) {
-        tableBody.innerHTML = "";
 
-        if (!data || data.length === 0) {
-            const nombreTipo = (tipo ? tipo.toLowerCase() : "troquel");
-            let mensaje = `No se encontraron ${nombreTipo}s con esas características`;
-
-            tableBody.innerHTML = `
-            <tr>
-                <td colspan="6" style="text-align:center; color:red;">
-                    ${mensaje}
-                </td>
-            </tr>
-        `;
-            return;
-        }
-
-        data.forEach(item => {
-
-            const tamanioCerrado = `${item.ancho} x ${item.largo}${item.alto ? ' x ' + item.alto : ''}`;
-
-            tableBody.innerHTML += `
-            <tr>
-                <td>${item.numero}${item.sufijo ? item.sufijo : ""}</td>
-
-                <td>
-                    ${item.tamanioCorteAncho} x ${item.tamanioCorteLargo}
-                </td>
-
-                <td>
-                    ${tamanioCerrado}
-                </td>
-
-                <td>${item.tipo}</td>
-
-                <td>${item.descripcion}</td>
-
-                <td class="auth-required ${estaAutenticado() ? "" : "hidden"}">
-
-                    <button
-                        type="button"
-                        class="secondary-button"
-                        onclick='editarTroquelDesdeTabla(${JSON.stringify(item)})'>
-                        Editar
-                    </button>
-
-                    <button
-                        type="button"
-                        class="primary-button"
-                        onclick="eliminarTroquel(${item.id})">
-                        Eliminar
-                    </button>
-
-                </td>
-            </tr>
-        `;
-        });
-
-        toggleTipoTroquelColumn();
-    }
 
     window.editarTroquelDesdeTabla = function (troquel) {
         troquelForm.reset();

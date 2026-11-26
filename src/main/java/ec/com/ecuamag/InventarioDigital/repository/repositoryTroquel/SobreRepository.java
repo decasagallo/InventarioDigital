@@ -21,8 +21,8 @@ public interface SobreRepository extends JpaRepository<Sobre, Long> {
             "WHERE (:tipoSobre IS NULL OR s.tipoSobre = :tipoSobre) " +  // 👈 Ahora es opcional            "AND (:orientacion IS NULL OR s.orientacion = :orientacion) " +
             "AND (:orientacion IS NULL OR s.orientacion = :orientacion) " +
             "AND (:tipoSolapa IS NULL OR s.tipoSolapa = :tipoSolapa) " +
-            "AND (:ancho IS NULL OR s.ancho = :ancho) " +
-            "AND (:largo IS NULL OR s.largo = :largo) " +
+            "AND (:ancho IS NULL OR CAST(s.ancho AS string) LIKE CONCAT(CAST(:ancho AS string), '%')) " +
+            "AND (:largo IS NULL OR CAST(s.largo AS string) LIKE CONCAT(CAST(:largo AS string), '%')) " +
             "AND (:inventario IS NULL OR s.inventario = :inventario) " +  // 👈 Filtro por Inventario agregado
             "ORDER BY s.numero ASC")
     List<Sobre> filtrarSobres(@Param("tipoSobre") TipoSobre tipoSobre,
